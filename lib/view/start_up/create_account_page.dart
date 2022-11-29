@@ -2,11 +2,20 @@ import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/ma'
-    'terial.dart';
+import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:oshi_map/model/account.dart';
+import 'package:oshi_map/utils/firestore/users.dart';
 
 import '../../utils/authentication.dart';
+
+
+//create_accountのタイミングでユーザーの情報をfirestoreに保存する。
+//流れ：Authenticationが完了しているタイミングで、uidを用いて画像を
+//アップロードする。
+//画像のアップロードが完了したら、そのときにつくられたダウンロードurlをもとに、
+//ユーザーの情報を保存していく。
+
 
 class CreateAccountPage extends StatefulWidget {//stf
   const CreateAccountPage({Key? key}) : super(key: key);
@@ -40,10 +49,10 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
 
 
   //画像をfire strageにアップロードするというメソッドをつくる
-  Future<void> uploadImage(String uid) async{
+  Future<String> uploadImage(String uid) async{
     //uidを使うので、送ってきて受けとるようにする。
-    final FirebaseStorage storageInstace = FirebaseStorage.instance;
-    final Reference ref = storageInstace.ref();
+    final FirebaseStorage storageInstance = FirebaseStorage.instance;
+    final Reference ref = storageInstance.ref();
 
     await ref.child(uid).putFile(image!);
     //putFileでファイルをアップロードすることができる
@@ -53,11 +62,14 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
     //今回はuserのuidを使う。
 
     //画像のリンクの取得をする。↓
-    String downloadUrl = await storageInstace.ref(uid).getDownloadURL();
+    String downloadUrl = await storageInstance.ref(uid).getDownloadURL();
     //今アップロードした画像のリンクを取得することができる。
     print('image_path: $downloadUrl');
     //画像がどんなリンクにあるのか確認
 
+    //さいしゅうてきにdownloadUrl;をもどすので、
+    //Future<void>をFuture<String>に変更する。
+    return downloadUrl;
   }
 
   @override
@@ -172,19 +184,33 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                         //失敗している場合はbool型がreturnされるから
                         //(return falseなので)
 
-                        await uploadImage(result.user!.uid);
+                        String imagePath = await uploadImage(result.user!.uid); //String imagePath =追加
                         //今作られたuserのuidで画像を保存することができる。
                         //userはnullじゃないよアピールの!をつけるとnull回避でエラー解決
                         //await をつけると、uploadが終わってから元の画面に戻るようにする。
 
-                        //Navigator.pop(context);にエラーがでるので、if (!mounted) return;　を追加
+                        Account newAccount = Account(
+                          id: result.user!.uid,
+                          name: nameController.text,
+                          userId: userIdController.text,
+                          imagePath: imagePath,
+                        );
+
+                        var _result = await UserFirestore.setUser(newAccount);
+                        //今作ったnewAccountを送る
+
+                        if(_result == true){
+                          Navigator.pop(context);//元の画面に戻る
+                        }
+
+                        /*//Navigator.pop(context);にエラーがでるので、if (!mounted) return;　を追加
                         //非同期処理中に、「Navigator」のように、contextを渡す処理があると、非同期処理から戻ってきたときに、既に画面遷移が終わっていて、元の画面のcontextが無くなっているのでエラーになる、という状況を防ぎましょう
                         //要は、contextが無くなっていたら、早期リターンしてNavigatorを実行させないようにする、ということ
                         // contextを渡す前に、contextが現在のWidgetツリー内に存在しているかどうかチェック
                         // 存在しなければ、画面遷移済を意味するので、以降の画面遷移処理は行わない
                         if (!mounted) return;
 
-                        Navigator.pop(context);
+                        Navigator.pop(context);*/
                       }
                     }
                   },
