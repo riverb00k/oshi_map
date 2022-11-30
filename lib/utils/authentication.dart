@@ -1,8 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:oshi_map/model/account.dart';
 
 class Authentication{
   static final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   static User? currentFirebaseUser;
+  static Account? myAccount;
 
   //↓実際にサインアップするアカウントを作る処理
   //サインアップするときは、このメアドとパスワードですよ、と送ってもらいたい
@@ -40,7 +42,7 @@ class Authentication{
       );
       currentFirebaseUser = _result.user;
       print('サインイン完了');
-      return true;
+      return _result;//UserCredential
     } on FirebaseAuthException catch(e){
       //エラーが起きたときの処理
       print('authサインインエラー: $e');

@@ -13,7 +13,11 @@ class Account{
   //コンストラクタの定義→Accountが実際に作られるときに行われる処理
   Account({//コンストラクタ
     //必須なもの→required つける→null回避
-    this.id = '', this.name = '',this.imagePath = '',
-    this.userId = '', this.createdTime,this.updatedTime,
+    required this.id,
+    required this.name,
+    required this.imagePath,
+    required this.userId,
+    this.createdTime,
+    this.updatedTime,
   });
 }

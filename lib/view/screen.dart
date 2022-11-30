@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:oshi_map/view/account/account_page.dart';
 import 'package:oshi_map/view/home/home.dart';
-import 'package:oshi_map/view/sign_in_page.dart';
 
 class Screen extends StatefulWidget {//
   const Screen({Key? key}) : super(key: key);
