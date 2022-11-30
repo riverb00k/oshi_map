@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:oshi_map/model/account.dart';
+import 'package:oshi_map/utils/authentication.dart';
 
 
 class UserFirestore{
@@ -30,6 +31,40 @@ class UserFirestore{
     } on FirebaseException catch (e) {
       //うまくいっていない時
       print('新規ユーザー作成エラー: $e');//エラーー内容をeに入れて表示
+      return false;
+    }
+  }
+
+  //ログイン時にFirestoreからユーザーの情報を取得表示できるように
+  //あかうんとをしゅとくするメソッドをよういする。
+  static Future<dynamic> getUser(String uid) async{//Future<dynamic>型の getUser()
+    //getUser()をする際にどのユーザーの情報かをauthinticationのuidを用いて
+    //とってくる
+
+    //エラーハンドリング
+    try{
+      DocumentSnapshot documentSnapshot = await users.doc(uid).get();
+      //送られてきたuidのないようをゲットする。
+
+      Map<String, dynamic> data = documentSnapshot.data() as Map<String, dynamic>;
+      //Map<String, dynamic> 型のdata
+
+      Account myAccount = Account(
+        //そのアカウントをつくっていく
+          id: uid,//送られてきたuid
+          name: data['name'],//firestoreのnameフィールドにはいっている情報
+          userId: data['user_id'],//firestoreのuser_idフィールドにはいっている情報
+          imagePath: data['image_path'],
+          createdTime: data['created_time'],
+          updatedTime: data['updated_time']
+        //↑[]の中の名前がfirestoreのフィールド名といっちするようにする。
+      );
+      Authentication.myAccount = myAccount;
+      //authentication.dartのmyAccountに新しいmyAccountを入れる
+      print('ユーザー取得完了');
+      return true;
+    }on FirebaseException catch(e){
+      print('ユーザー取得エラー: $e');
       return false;
     }
   }
