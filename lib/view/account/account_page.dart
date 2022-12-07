@@ -1,8 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+/*import 'package:intl/intl.dart';*/
 import 'package:oshi_map/model/account.dart';
 import 'package:oshi_map/model/oshi.dart';
 import 'package:oshi_map/utils/authentication.dart';
+import 'package:oshi_map/view/account/edit_account_page.dart';
 import 'package:oshi_map/view/oshi/oshi_page.dart';//電球の出し方→altとエンター
 
 //アカウントアイコンを押したときのページ
@@ -26,19 +28,19 @@ class _AccountPageState extends State<AccountPage> {
         oshiId: '0',//推しのid
         oshiName: 'Yujin',//推しの名前
         oshiImagePath: 'https://hips.hearstapps.com/hmg-prod.s3.amazonaws.com/images/fgfdhdsviaada8b-1652247063.jpeg',//推しの画像
-        oshiPostId: '0001',//誰の推しかを管理するためのid
+        //oshiPostId: '0001',//誰の推しかを管理するためのid
         affiliation: 'ive',//推しの所属
         etc: 'StarShip',//推しの情報備考
-        createdTime: DateTime.now()//作成時時刻
+        oshiCreatedTime: Timestamp.now()//作成時時刻
     ),
     Oshi(
         oshiId: '1',//推しのid
         oshiName: 'Giselle',//推しの名前
         oshiImagePath: 'https://kpopfansquare.com/wp-content/uploads/2021/07/pic-aespa-Giselle-2-683x1024.jpg',//推しの画像
-        oshiPostId: '0002',//誰の推しかを管理するためのid
+        //oshiPostId: '0002',//誰の推しかを管理するためのid
         affiliation: 'aespa',//推しの所属
         etc: 'SM',//推しの情報備考
-        createdTime: DateTime.now()//作成時時刻
+        oshiCreatedTime: Timestamp.now()//作成時時刻
     ),
   ];
 
@@ -49,7 +51,7 @@ class _AccountPageState extends State<AccountPage> {
         child: Column(
           children: [
             Container(
-              padding: EdgeInsets.only(right: 20,left: 20, top: 25),
+              padding: const EdgeInsets.only(right: 20,left: 20, top: 25),
               /*color: Colors.red,*/
               height: 150,
               child: Column(
@@ -64,22 +66,27 @@ class _AccountPageState extends State<AccountPage> {
                             foregroundImage: NetworkImage(myAccount.imagePath),
                           ),
 
-                          SizedBox(width: 10),
+                          const SizedBox(width: 10),
 
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(myAccount.name,style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),),
-                              Text('@${myAccount.userId}',style: TextStyle(fontSize: 15,color: Colors.grey),),
+                              Text(myAccount.name,style: const TextStyle(fontSize: 25, fontWeight: FontWeight.bold),),
+                              Text('@${myAccount.userId}',style: const TextStyle(fontSize: 15,color: Colors.grey),),
                             ],
                           ),
                         ],
                       ),
                       OutlinedButton(
-                        onPressed: (){
-
+                        onPressed: () async{
+                          var result = await Navigator.push(context,MaterialPageRoute(builder: (context) => const EditAccountPage()));
+                          if(result == true){//myAccountの情報を更新する
+                            setState((){//画面描画
+                              myAccount = Authentication.myAccount!;
+                            });
+                          }
                         },
-                        child: Text('編集',style: TextStyle(fontSize: 18),),
+                        child: const Text('編集',style: TextStyle(fontSize: 18),),
                       )
                     ],
                   )
@@ -89,12 +96,12 @@ class _AccountPageState extends State<AccountPage> {
             Container(
               alignment: Alignment.center,
               width: double.infinity,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 border: Border(bottom: BorderSide(
                   color: Colors.blue, width: 2.5
                 ))
              ),
-              child: Text('推し一覧',style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),),
+              child: const Text('推し一覧',style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),),
             ),
 
             Expanded(child: ListView.builder(
@@ -149,10 +156,10 @@ class _AccountPageState extends State<AccountPage> {
                                       Text(' ${oshiList[index].etc}', style: const TextStyle(color: Colors.grey),),
                                     ],
                                   ),
-                                  Text(DateFormat('M/d/yyyy').format(oshiList[index].createdTime!))
+                                  /*Text(DateFormat('M/d/yyyy').format(oshiList[index].oshiCreatedTime!))
                                   //ListViewのItemBuilderが繰り返すたびにindexの数字が変わる
                                   //DAteTime型をint型に変換→pubspec.yamlで。
-                                  //nullの可能性あるんですけどのエラーが出るので「nullの可能性ないですよ」を!で意思表示
+                                  //nullの可能性あるんですけどのエラーが出るので「nullの可能性ないですよ」を!で意思表示*/
                                 ],
                               ),
                               /*Text(oshiList[index].content)//postListの中身を表示*/
