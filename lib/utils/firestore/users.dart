@@ -68,4 +68,21 @@ class UserFirestore{
       return false;
     }
   }
+
+  //ユーザーを更新するメソッド
+ static Future<dynamic> updateUser(Account updateAccount) async{
+    try{
+      await users.doc(updateAccount.id).update({
+        'name':updateAccount.name,
+        'image_path':updateAccount.imagePath,
+        'user_id':updateAccount.userId,
+        'updated_time':Timestamp.now()
+      });
+      print('ユーザー情報の更新完了');
+      return true;
+    }on FirebaseException catch(e){
+      print('ユーザー情報の更新エラー: $e');
+      return false;
+    }
+ }
 }

@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:oshi_map/model/account.dart';
 import 'package:oshi_map/utils/firestore/users.dart';
+import 'package:oshi_map/utils/function_utils.dart';
+import 'package:oshi_map/utils/widget_utils.dart';
 
 import '../../utils/authentication.dart';
 
@@ -33,58 +35,13 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
 
   //取得した画像を管理するための変数を用意する↓
   File? image;
-  ImagePicker picker = ImagePicker();
-
-  //画像を取得するメソッドを定義↓
-  Future<void> getImageFromGallery() async{
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-    //galleryの部分をcameraにすれば撮影した写真を読み取るとができる
-    if(pickedFile != null){
-      //選んだ画像がnullでないなら、imageという変数に選んだ画像の情報を渡す
-      setState(() {
-        image = File(pickedFile.path);
-      });
-    }
-  }
-
-
-  //画像をfire strageにアップロードするというメソッドをつくる
-  Future<String> uploadImage(String uid) async{
-    //uidを使うので、送ってきて受けとるようにする。
-    final FirebaseStorage storageInstance = FirebaseStorage.instance;
-    final Reference ref = storageInstance.ref();
-
-    await ref.child(uid).putFile(image!);
-    //putFileでファイルをアップロードすることができる
-    //画像はimageに格納していたのでimageをアップロードする。
-    //imageがnullだとだめなので、!をつけてnull回避してエラーをとる
-    //child(uid)の()の中は、アップロードする画像の名前はどういうふうにする？ということ。
-    //今回はuserのuidを使う。
-
-    //画像のリンクの取得をする。↓
-    String downloadUrl = await storageInstance.ref(uid).getDownloadURL();
-    //今アップロードした画像のリンクを取得することができる。
-    print('image_path: $downloadUrl');
-    //画像がどんなリンクにあるのか確認
-
-    //さいしゅうてきにdownloadUrl;をもどすので、
-    //Future<void>をFuture<String>に変更する。
-    return downloadUrl;
-  }
+  /*ImagePicker picker = ImagePicker();*/
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
 
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,//背景の色を透明に
-        elevation: 0,//影をなくす
-        iconTheme: const IconThemeData(color: Colors.black),//矢印を黒に
-        title: const Text('新規登録',style: TextStyle(color: Colors.black),),
-        //新規登録の文字を黒色に
-        centerTitle: true,
-        //新規登録のタイトルを真ん中に
-      ),
+      appBar: WidgetUtils.createAppBar('新規登録'),
 
 
       body: SingleChildScrollView(//containe(body)に対してwrap with widget→SingleChildScrollView
@@ -100,8 +57,16 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
 
               GestureDetector(//CircleAvatarに対してwrap with widget→GestureDetector
                 //GestureDetectorウィジェットで押せないウィジェットを押せるように
-                onTap: (){
-                  getImageFromGallery();
+                onTap: () async{
+                  var result = await FunctionUtils.getImageFromGallery();
+                  //getImageFromGalleryはpickedFileを返す。
+                  if(result != null){
+                    //画像が取得できていたら
+                     //選んだ画像がnullでないなら、imageという変数に選んだ画像の情報を渡す
+                        setState(() {
+                           image = File(result.path);
+                        });
+                  }
                 },
                 child: CircleAvatar(
                   foregroundImage: image == null ? null : FileImage(image!),
@@ -184,7 +149,8 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                         //失敗している場合はbool型がreturnされるから
                         //(return falseなので)
 
-                        String imagePath = await uploadImage(result.user!.uid); //String imagePath =追加
+                        String imagePath = await FunctionUtils.uploadImage(result.user!.uid, image!); //String imagePath =追加
+                        //image!で、File型
                         //今作られたuserのuidで画像を保存することができる。
                         //userはnullじゃないよアピールの!をつけるとnull回避でエラー解決
                         //await をつけると、uploadが終わってから元の画面に戻るようにする。
