@@ -4,7 +4,13 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:oshi_map/model/oshi.dart';
+import 'package:oshi_map/model/oshi.dart';
+import 'package:oshi_map/model/oshi.dart';
+import 'package:oshi_map/utils/firestore/oshis.dart';
+import 'package:oshi_map/utils/function_utils.dart';
 import 'package:oshi_map/utils/widget_utils.dart';
+
+import '../../model/oshi.dart';
 
 class OshiPage extends StatefulWidget {//stf
  /* const OshiPage({Key? key}) : super(key: key);*/
@@ -21,49 +27,12 @@ class _OshiPageState extends State<OshiPage> {
 
   //追加ボタンをおしたときに入力されていることを送りたいので、それを管理するためのもの
   TextEditingController oshiNameController = TextEditingController();
+  TextEditingController oshiIdController = TextEditingController();
   TextEditingController affiliationController = TextEditingController();
   TextEditingController etcController = TextEditingController();
 
   //取得した画像を管理するための変数を用意する↓
   File? image;
-  ImagePicker picker = ImagePicker();
-
-  //画像を取得するメソッドを定義↓
-  Future<void> getImageFromGallery() async{
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-    //galleryの部分をcameraにすれば撮影した写真を読み取るとができる
-    if(pickedFile != null){
-      //選んだ画像がnullでないなら、imageという変数に選んだ画像の情報を渡す
-      setState(() {
-        image = File(pickedFile.path);
-      });
-    }
-  }
-
-  //画像をfire strageにアップロードするというメソッドをつくる
-  Future<String> uploadImage(String oshiId) async{
-    //oshiIdを使うので、送ってきて受けとるようにす。
-    final FirebaseStorage storageInstance = FirebaseStorage.instance;
-    final Reference ref = storageInstance.ref();
-
-    await ref.child(oshiId).putFile(image!);
-    //putFileでファイルをアップロードすることができる
-    //画像はimageに格納していたのでimageをアップロードする。
-    //imageがnullだとだめなので、!をつけてnull回避してエラーをとる
-    //child(oshiId)の()の中は、アップロードする画像の名前はどういうふうにする？ということ。
-    //今回はuserのuidを使う。
-
-    //画像のリンクの取得をする。↓
-    String downloadUrl = await storageInstance.ref(oshiId).getDownloadURL();
-    //今アップロードした画像のリンクを取得することができる。
-    print('oshiImagePath: $downloadUrl');
-    //画像がどんなリンクにあるのか確認
-
-    //さいしゅうてきにdownloadUrl;をもどすので、
-    //Future<void>をFuture<String>に変更する。
-    return downloadUrl;
-  }
-
 
 
   /*//メモを作成する処理のメソッド
@@ -129,8 +98,16 @@ class _OshiPageState extends State<OshiPage> {
 
               GestureDetector(//CircleAvatarに対してwrap with widget→GestureDetector
                 //GestureDetectorウィジェットで押せないウィジェットを押せるように
-                onTap: (){
-                  getImageFromGallery();
+                onTap: () async{
+                  var result = await FunctionUtils.getOshiImageFromGallery();
+                  //getOshiImageFromGalleryはpickedFileを返す。
+                  if(result != null){
+                    //画像が取得できていたら
+                    //選んだ画像がnullでないなら、imageという変数に選んだ画像の情報を渡す
+                    setState(() {
+                      image = File(result.path);
+                    });
+                  }
                 },
                 child: CircleAvatar(
                   foregroundImage: image == null ? null : FileImage(image!),
@@ -160,15 +137,23 @@ class _OshiPageState extends State<OshiPage> {
                   width:300,//texifieldが画面幅いっぱいだと見にくいので
 
                   child: TextField(//名前を入力するための入力欄
-                    controller: affiliationController,
-                    decoration: const InputDecoration(hintText: '推しの所属'),
+                    controller: oshiIdController,
+                    decoration: const InputDecoration(hintText: '推しのID'),
                   ),
+                ),
+              ),
+
+              Container(//TetFieldに対してwrap with container
+                width:300,//texifieldが画面幅いっぱいだと見にくいので
+                child: TextField(//名前を入力するための入力欄
+                  controller: affiliationController,
+                  decoration: const InputDecoration(hintText: '推しの所属'),
                 ),
               ),
 
               Padding(//containerに対してwrap with padding
                 //メールアドレスの下に余白
-                padding: const EdgeInsets.only(bottom: 20.0),
+                padding: const EdgeInsets.symmetric(vertical: 20.0),
                 child: Container(//TetFieldに対してwrap with container
                   width:300,//texifieldが画面幅いっぱいだと見にくいので
                   child: TextField(//名前を入力するための入力欄
@@ -183,13 +168,26 @@ class _OshiPageState extends State<OshiPage> {
               ElevatedButton(
                   onPressed: () async{//アカウント作成ボタン
                     //awaitがある時はasyncを付ける
-
                     //もし、入力欄が全て埋められていたら、元のページに戻る
                     if(oshiNameController.text.isNotEmpty
+                        && oshiIdController.text.isNotEmpty
                         && affiliationController.text.isNotEmpty
                         && etcController.text.isNotEmpty
                         && image != null){
+                      //画像をfire strageにアップロードするというメソッドをつくる
+                          String oshiImagePath = await FunctionUtils.uploadOshiImage(oshiIdController.text ,image!); //String imagePath =追加
 
+                          Oshi newOshi = Oshi(
+                            oshiName: oshiNameController.text,
+                            affiliation: affiliationController.text,
+                            etc: etcController.text,
+                            oshiId: oshiIdController.text,
+                            oshiImagePath: oshiImagePath,
+                          );
+                          var result = await OshiFirestore.setOshi(newOshi);
+                          if(result == true){
+                            Navigator.pop(context);
+                          }
 
 
 
@@ -204,7 +202,7 @@ class _OshiPageState extends State<OshiPage> {
 
                         Navigator.pop(context);*/
                       },
-                  child: const Text('アカウント作成')
+                  child: const Text('推し作成')
               )
 
 
