@@ -125,7 +125,7 @@ class _AccountPageState extends State<AccountPage> {
                       children: [
                         CircleAvatar(//CircleAvatarは丸型のウィジェットを表示するのに使用
                           radius: 22, //画像のサイズが小さいので大きくする→radiusプロパティ
-                          foregroundImage: NetworkImage(oshiList[index].oshiImagePath),
+                         /* foregroundImage: NetworkImage(oshiList[index].oshiImagePath),*/
                         ),
                         Expanded(//Columnにたいしてwrap with widget→Expandedに変更
                           //xpandedというWidgetは、RowやColumnの子Widget間の隙間を目一杯埋めたいときに使います。
