@@ -1,16 +1,17 @@
 import 'dart:io';
 
-import 'package:firebase_storage/firebase_storage.dart';
+/*import 'package:firebase_storage/firebase_storage.dart';*/
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
+/*import 'package:image_picker/image_picker.dart';*/
 import 'package:oshi_map/model/oshi.dart';
-import 'package:oshi_map/model/oshi.dart';
-import 'package:oshi_map/model/oshi.dart';
+/*import 'package:oshi_map/model/oshi.dart';
+import 'package:oshi_map/model/oshi.dart';*/
+import 'package:oshi_map/utils/authentication.dart';
 import 'package:oshi_map/utils/firestore/oshis.dart';
 import 'package:oshi_map/utils/function_utils.dart';
 import 'package:oshi_map/utils/widget_utils.dart';
 
-import '../../model/oshi.dart';
+/*import '../../model/oshi.dart';*/
 
 class OshiPage extends StatefulWidget {//stf
  /* const OshiPage({Key? key}) : super(key: key);*/
@@ -174,18 +175,20 @@ class _OshiPageState extends State<OshiPage> {
                         && affiliationController.text.isNotEmpty
                         && etcController.text.isNotEmpty
                         && image != null){
+
                       //画像をfire strageにアップロードするというメソッドをつくる
                           String oshiImagePath = await FunctionUtils.uploadOshiImage(oshiIdController.text ,image!); //String imagePath =追加
 
                           Oshi newOshi = Oshi(
+                            postAccountId: Authentication.myAccount!.id,
                             oshiName: oshiNameController.text,
                             affiliation: affiliationController.text,
                             etc: etcController.text,
                             oshiId: oshiIdController.text,
                             oshiImagePath: oshiImagePath,
                           );
-                          var result = await OshiFirestore.setOshi(newOshi);
-                          if(result == true){
+                          var result = await OshiFirestore.addOshi(newOshi);
+                          if(result == true){//登録できたら元の画面に戻る
                             Navigator.pop(context);
                           }
 
