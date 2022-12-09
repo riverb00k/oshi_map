@@ -9,7 +9,7 @@ class Oshi{
   String? oshiId;//推しのid自動生成
   String oshiName;//推しの名前
   String? oshiImagePath;//推しの画像
-  //String oshiPostId;//誰の推しかを管理するためのid(uid?)
+  String? postAccountId;//誰の推しかを管理するためのid(uid?)
   String affiliation;//推しの所属
   String? etc;//推しの情報備考
   Timestamp? oshiCreatedTime;//ユーザー作成時時刻
@@ -22,7 +22,7 @@ class Oshi{
     this.oshiId,
     required this.oshiName,
     this.oshiImagePath,
-    //required this.oshiPostId,
+    this.postAccountId,
     required this.affiliation,
     this.etc,
     this.oshiCreatedTime,
