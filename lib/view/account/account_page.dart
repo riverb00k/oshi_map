@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:oshi_map/model/account.dart';
 import 'package:oshi_map/model/oshi.dart';
 import 'package:oshi_map/utils/authentication.dart';
+import 'package:oshi_map/utils/firestore/oshis.dart';
+import 'package:oshi_map/utils/firestore/users.dart';
 import 'package:oshi_map/view/account/edit_account_page.dart';
 import 'package:oshi_map/view/oshi/oshi_page.dart';//電球の出し方→altとエンター
 
@@ -22,27 +24,6 @@ class _AccountPageState extends State<AccountPage> {
   //myAccountがnullの可能性があるので、!をつける。
 
  /* Oshi myOshi = Authentication.myOshi!;*/
-
-  List<Oshi> oshiList =[
-    Oshi(
-        oshiId: '0',//推しのid
-        oshiName: 'Yujin',//推しの名前
-        oshiImagePath: 'https://hips.hearstapps.com/hmg-prod.s3.amazonaws.com/images/fgfdhdsviaada8b-1652247063.jpeg',//推しの画像
-        //oshiPostId: '0001',//誰の推しかを管理するためのid
-        affiliation: 'ive',//推しの所属
-        etc: 'StarShip',//推しの情報備考
-        oshiCreatedTime: Timestamp.now()//作成時時刻
-    ),
-    Oshi(
-        oshiId: '1',//推しのid
-        oshiName: 'Giselle',//推しの名前
-        oshiImagePath: 'https://kpopfansquare.com/wp-content/uploads/2021/07/pic-aespa-Giselle-2-683x1024.jpg',//推しの画像
-        //oshiPostId: '0002',//誰の推しかを管理するためのid
-        affiliation: 'aespa',//推しの所属
-        etc: 'SM',//推しの情報備考
-        oshiCreatedTime: Timestamp.now()//作成時時刻
-    ),
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -104,73 +85,116 @@ class _AccountPageState extends State<AccountPage> {
               child: const Text('推し一覧',style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),),
             ),
 
-            Expanded(child: ListView.builder(
-                itemCount: oshiList.length,
-                itemBuilder: (context, index){
-                  return Container(
+            Expanded(child: StreamBuilder<QuerySnapshot>(
+              stream: UserFirestore.users.doc(myAccount.id)
+                  .collection('my_oshis').orderBy('oshiCreatedTime',descending: true)//新しい投稿が上にくるように
+                  .snapshots(),
+              builder: (context, snapshot) {
+                if(snapshot.hasData){//snapshotがデータを持っていたら
 
-                    decoration: BoxDecoration(//呟きと呟きの間に線
-                        border: index == 0 ? const Border(//三項演算子　indexが0のつびやきは、うえとしたにせん、そうでなければしたに線
-                          top: BorderSide(color: Colors.grey,width: 1),
-                          bottom: BorderSide(color: Colors.grey,width: 1),
-                        ) : const Border(bottom: BorderSide(color: Colors.grey,width: 1),)
-                    ),
+                  //myOshisにはいっているドキュメントの数だけリストを作る
+                  List<String> myOshiIds = List.generate(snapshot.data!.docs.length, (index){//dataはnullじゃないよ!
+                    return snapshot.data!.docs[index].id;
+                  });
+                  return FutureBuilder<List<Oshi>?>(
+                    future: OshiFirestore.getOshisFromIds(myOshiIds),//myOshiIdsを元につくっていく
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        return ListView
+                            .builder( //builderに対してwrap with streambuilder　ListViewに対してwrap with StreamBuilder
+                            itemCount: snapshot.data!.length,
+                            itemBuilder: (context, index) {
+                              Oshi oshi = snapshot.data![index];
+                              return Container(
 
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
-                    //tweetとtweetの間に隙間を作ってゆとりをもたせる
-                    //horizontalで左右に10の余白verticalでたてに15の余白
+                                decoration: BoxDecoration( //呟きと呟きの間に線
+                                    border: index == 0
+                                        ? const Border( //三項演算子　indexが0のつびやきは、うえとしたにせん、そうでなければしたに線
+                                      top: BorderSide(
+                                          color: Colors.grey, width: 1),
+                                      bottom: BorderSide(
+                                          color: Colors.grey, width: 1),
+                                    )
+                                        : const Border(bottom: BorderSide(
+                                        color: Colors.grey, width: 1),)
+                                ),
 
-                    child: Row(//Rowウィジェットのchildrenプロパティにウィジェットに入れると
-                      // 書いている要素が横に並ぶ
-                      children: [
-                        CircleAvatar(//CircleAvatarは丸型のウィジェットを表示するのに使用
-                          radius: 22, //画像のサイズが小さいので大きくする→radiusプロパティ
-                         /* foregroundImage: NetworkImage(oshiList[index].oshiImagePath),*/
-                        ),
-                        Expanded(//Columnにたいしてwrap with widget→Expandedに変更
-                          //xpandedというWidgetは、RowやColumnの子Widget間の隙間を目一杯埋めたいときに使います。
-                          // また、実装者は、Expandedを必ずRow、Column、Flexの子要素として配置します。
-                          // 隙間を埋めるためのWidgetなので、そりゃそうだろうという感じですね。
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10, vertical: 15),
+                                //tweetとtweetの間に隙間を作ってゆとりをもたせる
+                                //horizontalで左右に10の余白verticalでたてに15の余白
 
-                          child: Column(//Columnは縦にウィジェットを並べる
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            //Text(postList[index].content)を真ん中から左端に移動
+                                child: Row( //Rowウィジェットのchildrenプロパティにウィジェットに入れると
+                                  // 書いている要素が横に並ぶ
+                                  children: [
+                                    CircleAvatar( //CircleAvatarは丸型のウィジェットを表示するのに使用
+                                      radius: 22,
+                                      //画像のサイズが小さいので大きくする→radiusプロパティ
+                                      /*foregroundImage: NetworkImage(oshiList[index].oshiImagePath),*/
+                                      foregroundImage: NetworkImage(oshi.oshiImagePath),
+                                    ),
+                                    Expanded( //Columnにたいしてwrap with widget→Expandedに変更
+                                      //xpandedというWidgetは、RowやColumnの子Widget間の隙間を目一杯埋めたいときに使います。
+                                      // また、実装者は、Expandedを必ずRow、Column、Flexの子要素として配置します。
+                                      // 隙間を埋めるためのWidgetなので、そりゃそうだろうという感じですね。
 
-                            children: [
-                              Row(//Rowウィジェットのchildrenプロパティにウィジェットに入れると
-                                // 書いている要素が横に並ぶ
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                //nameとuserIdが入っているRowとcreatedTimeを両端に配置
+                                      child: Column( //Columnは縦にウィジェットを並べる
+                                        crossAxisAlignment: CrossAxisAlignment
+                                            .start,
+                                        //Text(postList[index].content)を真ん中から左端に移動
 
-                                children: [
-                                  Row(//Rowウィジェットのchildrenプロパティにウィジェットに入れると
-                                    // 書いている要素が横に並ぶ nameとuserIdがワンセット
+                                        children: [
+                                          Row( //Rowウィジェットのchildrenプロパティにウィジェットに入れると
+                                            // 書いている要素が横に並ぶ
+                                            mainAxisAlignment: MainAxisAlignment
+                                                .spaceBetween,
+                                            //nameとuserIdが入っているRowとcreatedTimeを両端に配置
 
-                                    children: [
-                                      Text(' ${oshiList[index].oshiName}', style: const TextStyle(fontWeight: FontWeight.bold),),
-                                      //style: TextStyle(fontWeight: FontWeight.bold),で太字
+                                            children: [
+                                              Row( //Rowウィジェットのchildrenプロパティにウィジェットに入れる  と
+                                                // 書いている要素が横に並ぶ nameとuserIdがワンセット
 
-                                      Text(' [${oshiList[index].affiliation}]', style: const TextStyle(color: Colors.black),),
-                                      //style: TextStyle(color: Colors.grey)でuserIdをグレーに表示
-                                      //'@${myAccount.userId}'にして@を付けて表示してuserIdっぽく
-                                      Text(' ${oshiList[index].etc}', style: const TextStyle(color: Colors.grey),),
-                                    ],
-                                  ),
-                                  /*Text(DateFormat('M/d/yyyy').format(oshiList[index].oshiCreatedTime!))
-                                  //ListViewのItemBuilderが繰り返すたびにindexの数字が変わる
-                                  //DAteTime型をint型に変換→pubspec.yamlで。
-                                  //nullの可能性あるんですけどのエラーが出るので「nullの可能性ないですよ」を!で意思表示*/
-                                ],
-                              ),
-                              /*Text(oshiList[index].content)//postListの中身を表示*/
-                              //ListViewのItemBuilderが繰り返すたびにindexの数字が変わる/**/
-                            ],
-                          ),
-                        )
-                      ],
-                    ),
-                  );
-                })
+                                                children: [
+                                                  Text(oshi.oshiName,
+                                                    style: const TextStyle(
+                                                        fontWeight: FontWeight
+                                                            .bold),),
+                                                  Text('@${oshi.affiliation}',
+                                                    style: const TextStyle(
+                                                        color: Colors.grey),),
+                                                  /*Text(' ${oshiList[index].oshiName}', style: const TextStyle(fontWeight: FontWeight.bold),),
+                                              //style: TextStyle(fontWeight: FontWeight.bold),で太字
+
+                                              Text(' [${oshiList[index].affiliation}]', style: const TextStyle(color: Colors.black),),
+                                              //style: TextStyle(color: Colors.grey)でuserIdをグレーに表示
+                                              //'@${myAccount.userId}'にして@を付けて表示してuserIdっぽく
+                                              Text(' ${oshiList[index].etc}', style: const TextStyle(color: Colors.grey),),*/
+                                                ],
+                                              ),
+                                              /*Text(DateFormat('M/d/yyyy').format(oshiList[index].oshiCreatedTime!))
+                                          //ListViewのItemBuilderが繰り返すたびにindexの数字が変わる
+                                          //DAteTime型をint型に変換→pubspec.yamlで。
+                                          //nullの可能性あるんですけどのエラーが出るので「nullの可能性ないですよ」を!で意思表示*/
+                                            ],
+                                          ),
+                                          /*Text(oshiList[index].content)//postListの中身を表示*/
+                                          //ListViewのItemBuilderが繰り返すたびにindexの数字が変わる/**/
+                                        ],
+                                      ),
+                                    )
+                                  ],
+                                ),
+                              );
+                            });
+                      } else {
+                        return Container();
+                      }
+                    });
+                }else {//snapshotがデータを持っていなかった場合
+                  return Container();
+                }
+              }
+            )
             )
           ],
         ),

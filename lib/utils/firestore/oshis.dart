@@ -19,9 +19,11 @@ class OshiFirestore{
       final CollectionReference _userOshis = _firestoreInstance.collection('users')
           .doc(newOshi.postAccountId).collection('my_oshis');//my_oshisというコレクションは自分だけのを保存
       var result = await oshis.add({
-        'postOshiId': newOshi.postAccountId,
+        'postAccountId': newOshi.postAccountId,
         'oshiName': newOshi.oshiName,//user_idというフィールドに対してnewAccountのuserIdを保存する。
-        'oshiImagePath' :newOshi.oshiImagePath,
+        'oshiImagePath': newOshi.oshiImagePath,
+        'affiliation': newOshi.affiliation,
+        'etc': newOshi.etc,
         'oshiCreated_time': Timestamp.now(),//firestoreではDateTime型は扱えない。使えるのはTimeStamp型。
         'oshiUpdated_time': Timestamp.now(),
       });
@@ -45,6 +47,34 @@ class OshiFirestore{
     //うまくいっていない時
       print('新規推し登録エラー: $e');//エラーー内容をeに入れて表示
       return false;
+    }
+  }
+
+  //特定のidからoshiをつくりだすメソッド
+  static Future<List<Oshi>?> getOshisFromIds(List<String> ids) async{
+    List<Oshi> oshiList = [];
+
+    //自分の推しのid(my_oshisの中身※たくさんある場合もある)をidsに入れる
+    //postのidと比べて、一致したら情報をとってくる
+    try{
+      await Future.forEach(ids, (String id) async {//送られてきたidの数だけ処理を行う
+        var doc = await oshis.doc(id).get();
+        Map<String, dynamic> data = doc.data() as Map<String, dynamic>;//オブジェクト型のものをMap型に変える
+        Oshi oshi = Oshi(//インスタンス
+            oshiImagePath: data['oshiImagePath'],
+            oshiId: doc.id,
+            oshiName: data['oshiName'],
+            postAccountId: data['postAccountId'],
+            affiliation: data['affiliation'],
+            oshiCreatedTime: data['oshiCreatedTime']
+        );
+        oshiList.add(oshi);//今出来上がったoshiをoshiListに追加
+      });
+      print('自分の推し取得完了');
+      return oshiList;
+    }on FirebaseException catch(e) {
+      print('自分の推し取得エラー: $e');
+      return null;
     }
   }
 }

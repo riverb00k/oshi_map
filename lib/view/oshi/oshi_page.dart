@@ -173,7 +173,6 @@ class _OshiPageState extends State<OshiPage> {
                     if(oshiNameController.text.isNotEmpty
                         && oshiIdController.text.isNotEmpty
                         && affiliationController.text.isNotEmpty
-                        && etcController.text.isNotEmpty
                         && image != null){
 
                       //画像をfire strageにアップロードするというメソッドをつくる
