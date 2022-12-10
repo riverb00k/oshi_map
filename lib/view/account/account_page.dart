@@ -146,15 +146,9 @@ class _AccountPageState extends State<AccountPage> {
                                         children: [
                                           Row( //Rowウィジェットのchildrenプロパティにウィジェットに入れると
                                             // 書いている要素が横に並ぶ
-                                            mainAxisAlignment: MainAxisAlignment
-                                                .spaceBetween,
-                                            //nameとuserIdが入っているRowとcreatedTimeを両端に配置
+
 
                                             children: [
-                                              Row( //Rowウィジェットのchildrenプロパティにウィジェットに入れる  と
-                                                // 書いている要素が横に並ぶ nameとuserIdがワンセット
-
-                                                children: [
                                                   Text(oshi.oshiName,
                                                     style: const TextStyle(
                                                         fontWeight: FontWeight
@@ -162,23 +156,20 @@ class _AccountPageState extends State<AccountPage> {
                                                   Text('@${oshi.affiliation}',
                                                     style: const TextStyle(
                                                         color: Colors.grey),),
-                                                  /*Text(' ${oshiList[index].oshiName}', style: const TextStyle(fontWeight: FontWeight.bold),),
-                                              //style: TextStyle(fontWeight: FontWeight.bold),で太字
 
-                                              Text(' [${oshiList[index].affiliation}]', style: const TextStyle(color: Colors.black),),
-                                              //style: TextStyle(color: Colors.grey)でuserIdをグレーに表示
-                                              //'@${myAccount.userId}'にして@を付けて表示してuserIdっぽく
-                                              Text(' ${oshiList[index].etc}', style: const TextStyle(color: Colors.grey),),*/
-                                                ],
-                                              ),
-                                              /*Text(DateFormat('M/d/yyyy').format(oshiList[index].oshiCreatedTime!))
-                                          //ListViewのItemBuilderが繰り返すたびにindexの数字が変わる
-                                          //DAteTime型をint型に変換→pubspec.yamlで。
-                                          //nullの可能性あるんですけどのエラーが出るので「nullの可能性ないですよ」を!で意思表示*/
+                                                  Expanded(
+                                                    child: Container(
+                                                      alignment: Alignment.centerRight,
+                                                      child: IconButton(
+                                                            icon: const Icon(Icons.mode_edit),
+                                                            onPressed: () {
+                                                              // ボタンが押された際の動作を記述する
+                                                            },
+                                                      ),
+                                                    ),
+                                                  ),
                                             ],
                                           ),
-                                          /*Text(oshiList[index].content)//postListの中身を表示*/
-                                          //ListViewのItemBuilderが繰り返すたびにindexの数字が変わる/**/
                                         ],
                                       ),
                                     )
