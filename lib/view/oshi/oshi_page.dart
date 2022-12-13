@@ -35,52 +35,6 @@ class _OshiPageState extends State<OshiPage> {
   //取得した画像を管理するための変数を用意する↓
   File? image;
 
-
-  /*//メモを作成する処理のメソッド
-  Future<void> createOshi() async{
-    //コレクション名の情報
-    final memoCollection = FirebaseFirestore.instance.collection('memo');
-    //memoコレクションに新しく値を追加するフィールド名と値
-    //createMemoのなかで時間のかかるしょりなのでawaitさせることで、memoが追加されてから元の画面に戻るようにawait
-    await memoCollection.add({
-      //titleというフィールドにtitleControllerのTextfieldに入力されている値を入れる
-      'title': titleController.text,
-      //detailというフィールドにdetailControllerのTextfieldに入力されている値を入れる
-      'detail': detailController.text,
-      //現在時刻を入力
-      'createdDate': Timestamp.now()
-
-    });
-  }*/
-
-  /*//編集の更新をおしたときに更新されるように
-  Future<void> updateMemo() async{
-    //doc('')にドキュメントのIDを取得して入力
-    //updateMemoをするときは、currentMemoに値が入っているはずなので!つけとく
-    final doc = FirebaseFirestore.instance.collection('memo').doc(widget.currentMemo!.id);
-    await doc.update({//時間がかかる処理なのでawaitつける
-      //titleというフィールドにtitleControllerのTextfieldに入力されている値を入れる
-      'title': titleController.text,
-      //detailというフィールドにdetailControllerのTextfieldに入力されている値を入れる
-      'detail': detailController.text,
-      //現在時刻を入力
-      'updatedDate': Timestamp.now()
-    });
-  }*/
-
-  /*//編集のときに タイトルと詳細に元からあるデータが表示するされているようにする
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    //更新の時
-    if(widget.currentMemo != null){
-      titleController.text = widget.currentMemo!.title;//!をつけて絶対nullじゃないので大丈夫です
-      detailController.text = widget.currentMemo!.detail;
-    }
-  }*/
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(

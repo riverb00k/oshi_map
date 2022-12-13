@@ -166,6 +166,8 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                         //今作ったnewAccountを送る
 
                         if(_result == true){
+                          result.user!.sendEmailVerification();
+                          //今登録したユーザーのメアドにメールを送る
                           Navigator.pop(context);//元の画面に戻る
                         }
 

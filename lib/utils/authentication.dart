@@ -50,4 +50,14 @@ class Authentication{
       return false;
     }
   }
+
+  //ログアウト
+  static Future<void> signOut() async{
+    await _firebaseAuth.signOut();
+  }
+
+  //アカウント削除
+  static Future<void> deleteAuth() async{
+    currentFirebaseUser!.delete();
+  }
 }
