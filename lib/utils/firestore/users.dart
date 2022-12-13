@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:oshi_map/model/account.dart';
 import 'package:oshi_map/utils/authentication.dart';
+import 'package:oshi_map/utils/firestore/oshis.dart';
 
 
 class UserFirestore{
@@ -85,4 +86,10 @@ class UserFirestore{
       return false;
     }
  }
+
+ //アカウント削除時にユーザー削除の処理
+  static Future<dynamic> deleteUser(String accountId) async{//どのアカウントを消去するかの判断を引数でもってくる
+    users.doc(accountId).delete();
+    OshiFirestore.deleteOshis(accountId);
+  }
 }

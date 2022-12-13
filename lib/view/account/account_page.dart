@@ -7,11 +7,13 @@ import 'package:oshi_map/utils/authentication.dart';
 import 'package:oshi_map/utils/firestore/oshis.dart';
 import 'package:oshi_map/utils/firestore/users.dart';
 import 'package:oshi_map/view/account/edit_account_page.dart';
+import 'package:oshi_map/view/oshi/edit_oshi_page.dart';
 import 'package:oshi_map/view/oshi/oshi_page.dart';//電球の出し方→altとエンター
 
 //アカウントアイコンを押したときのページ
 
 class AccountPage extends StatefulWidget {//stfで追加
+  static Oshi? currentOshi;
   const AccountPage({Key? key}) : super(key: key);
 
   @override
@@ -23,7 +25,6 @@ class _AccountPageState extends State<AccountPage> {
   Account myAccount = Authentication.myAccount!;
   //myAccountがnullの可能性があるので、!をつける。
 
- /* Oshi myOshi = Authentication.myOshi!;*/
 
   @override
   Widget build(BuildContext context) {
@@ -90,6 +91,7 @@ class _AccountPageState extends State<AccountPage> {
                   .collection('my_oshis').orderBy('oshiCreatedTime',descending: true)//新しい投稿が上にくるように
                   .snapshots(),
               builder: (context, snapshot) {
+
                 if(snapshot.hasData){//snapshotがデータを持っていたら
 
                   //myOshisにはいっているドキュメントの数だけリストを作る
@@ -99,6 +101,7 @@ class _AccountPageState extends State<AccountPage> {
                   return FutureBuilder<List<Oshi>?>(
                     future: OshiFirestore.getOshisFromIds(myOshiIds),//myOshiIdsを元につくっていく
                     builder: (context, snapshot) {
+
                       if (snapshot.hasData) {
                         return ListView
                             .builder( //builderに対してwrap with streambuilder　ListViewに対してwrap with StreamBuilder
@@ -162,9 +165,46 @@ class _AccountPageState extends State<AccountPage> {
                                                       alignment: Alignment.centerRight,
                                                       child: IconButton(
                                                             icon: const Icon(Icons.mode_edit),
-                                                            onPressed: () {
-                                                              // ボタンが押された際の動作を記述する
-                                                            },
+                                                            onPressed: () {// ボタンが押された際の動作を記述する
+                                                              //鉛筆マークを押したときに出てくるボトムシート
+                                                              showModalBottomSheet(
+                                                                  context: context,
+                                                                  builder: (context){
+                                                                    return SafeArea(
+                                                                        child: Column(
+                                                                          //大きさがでかいので、編集と削除二つ分くらいにする
+                                                                          mainAxisSize: MainAxisSize.min,
+                                                                          children: [
+                                                                            ListTile(
+                                                                              //鉛筆アイコンをおしたときの動き
+                                                                              //編集画面に遷移
+                                                                              onTap: (){
+                                                                                //ボトムシートを消す(鉛筆マーク→ボトムシート出現→戻るボタンおしたときにボトムシートが表示され続けないように)
+                                                                                Navigator.pop(context);
+                                                                                Navigator.push(context, MaterialPageRoute(
+                                                                                  //currentMemoに対して今選択されているメモ(fetchMemo)を送る
+                                                                                    builder: (context) => const EditOshiPage()));
+                                                                              },
+                                                                              //鉛筆アイコン
+                                                                              leading:const Icon(Icons.edit),
+                                                                              title: const Text('編集'),
+                                                                            ),
+                                                                            ListTile(
+                                                                              //ゴミ箱アイコンを押したときの動き
+                                                                                onTap: ()async{
+                                                                                  /*await deleteMemo(fetchMemo.id);
+                                                                                  Navigator.pop(context);*/
+                                                                                }, //ゴミ箱アイコン
+                                                                                leading:const Icon(Icons.delete),
+                                                                                title:const Text('削除')
+                                                                            ),
+                                                                          ],
+
+                                                                        ),
+                                                                    );
+
+                                                                  });
+                                                              },
                                                       ),
                                                     ),
                                                   ),

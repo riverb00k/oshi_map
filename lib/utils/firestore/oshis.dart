@@ -55,7 +55,7 @@ class OshiFirestore{
     List<Oshi> oshiList = [];
 
     //自分の推しのid(my_oshisの中身※たくさんある場合もある)をidsに入れる
-    //postのidと比べて、一致したら情報をとってくる
+    //oshiのidと比べて、一致したら情報をとってくる
     try{
       await Future.forEach(ids, (String id) async {//送られてきたidの数だけ処理を行う
         var doc = await oshis.doc(id).get();
@@ -76,6 +76,17 @@ class OshiFirestore{
       print('自分の推し取得エラー: $e');
       return null;
     }
+  }
+
+  //アカウント削除時に推しの情報を消す
+  static Future<dynamic> deleteOshis(String accountId) async{
+    final CollectionReference _userOshis = _firestoreInstance.collection('users')
+        .doc(accountId).collection('my_oshis');
+    var snapShot = await _userOshis.get();
+    snapShot.docs.forEach((doc) async{//myoshisの中のidと一致するものを探してoshisの中から削除処理
+      await oshis.doc(doc.id).delete();
+      _userOshis.doc(doc.id).delete();//そのあと、usersの中のmyoshisも消去
+    });
   }
 }
 
