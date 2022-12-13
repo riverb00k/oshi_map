@@ -8,6 +8,7 @@ import 'package:oshi_map/model/account.dart';
 import 'package:oshi_map/utils/firestore/users.dart';
 import 'package:oshi_map/utils/function_utils.dart';
 import 'package:oshi_map/utils/widget_utils.dart';
+import 'package:oshi_map/view/start_up/check_email_page.dart';
 
 import '../../utils/authentication.dart';
 
@@ -168,7 +169,11 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                         if(_result == true){
                           result.user!.sendEmailVerification();
                           //今登録したユーザーのメアドにメールを送る
-                          Navigator.pop(context);//元の画面に戻る
+                          Navigator.push(context,MaterialPageRoute(builder: (context) => CheckEmailPage(
+                              email: emailController.text,
+                              pass: passController.text
+                          )
+                          ));//
                         }
 
                         /*//Navigator.pop(context);にエラーがでるので、if (!mounted) return;　を追加
