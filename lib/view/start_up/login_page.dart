@@ -16,10 +16,12 @@ class LoginPage extends StatefulWidget {//stf
 }
 
 class _LoginPageState extends State<LoginPage> {
+
   //それぞれの入力欄に入力された文字をしゅとくできるようにコントローラーを追加
   TextEditingController emailController = TextEditingController();
   TextEditingController passController = TextEditingController();
 
+  String errorText = '';
 
   @override
   Widget build(BuildContext context) {
@@ -81,11 +83,14 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
 
+              SizedBox(height:  5),
 
-
+              Text(errorText,style: const TextStyle(fontSize: 15,color: Colors.red,),),
 
               SizedBox(height:  70),
               //アカウントを作成していない方はこちら　と　ログインボタンの間にスペース
+
+
               ElevatedButton(onPressed: () async{
 
                  //await使う場合はasyncが必要
@@ -106,13 +111,12 @@ class _LoginPageState extends State<LoginPage> {
                       }else{
                         print('メール認証ができていません。');
                       }
-
-
-                      if(result == false) {
-                        print('sainn');
-                        const Text('サインインエラー',style: TextStyle(fontSize: 15,color: Colors.red,),);
-                       }
                     }
+                  if(result == false) {
+                    errorText = 'サインインエラーが発生しました';
+                    print(errorText);
+                    setState(() {});
+                  }
                     },
                   child: const Text('ログイン'))
 
