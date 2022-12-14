@@ -1,6 +1,7 @@
 import 'dart:io';
 
 /*import 'package:firebase_storage/firebase_storage.dart';*/
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 /*import 'package:image_picker/image_picker.dart';*/
 import 'package:oshi_map/model/oshi.dart';
@@ -34,6 +35,14 @@ class _OshiPageState extends State<OshiPage> {
 
   //取得した画像を管理するための変数を用意する↓
   File? image;
+
+  final oshis = FirebaseFirestore.instance.collection('oshis').doc();
+  /*FirebaseFirestore.instance.collection('コレクション名').doc('ドキュメントID').set(
+  {
+  'name': yuto,
+  'job': engineers,
+  },
+  );*/
 
   @override
   Widget build(BuildContext context) {
@@ -130,7 +139,7 @@ class _OshiPageState extends State<OshiPage> {
                         && image != null){
 
                       //画像をfire strageにアップロードするというメソッドをつくる
-                          String oshiImagePath = await FunctionUtils.uploadOshiImage(oshiIdController.text ,image!); //String imagePath =追加
+                          String oshiImagePath = await FunctionUtils.uploadOshiImage(oshis.id ,image!); //String imagePath =追加
 
                           Oshi newOshi = Oshi(
                             postAccountId: Authentication.myAccount!.id,
@@ -140,7 +149,7 @@ class _OshiPageState extends State<OshiPage> {
                             oshiId: oshiIdController.text,
                             oshiImagePath: oshiImagePath,
                           );
-                          var result = await OshiFirestore.addOshi(newOshi);
+                          var result = await OshiFirestore.setOshi(newOshi);
                           if(result == true){//登録できたら元の画面に戻る
                             Navigator.pop(context);
                           }

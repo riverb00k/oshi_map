@@ -134,38 +134,6 @@ class _EditOshiPageState extends State<EditOshiPage> {
                   },
                   child: const Text('更新')
               ),
-              const SizedBox(height: 50),
-              ElevatedButton(
-                  onPressed: (){
-                   /* Authentication.signOut();*/
-                    //ログイン画面に遷移
-                    while(Navigator.canPop(context)){//もしポップできる状況だったらポップする
-                      Navigator.pop(context);
-                    }
-                   /* //ポップできなくなったら、表示画面を破棄して画面遷移
-                    Navigator.pushReplacement(context, MaterialPageRoute(
-                        builder: (context) => *//*LoginPage*//*()));*/
-                  },
-                  child: const Text('ログアウト')
-              ),
-              const SizedBox(height: 50),
-
-              //アカウント削除
-              ElevatedButton(
-                  style: ElevatedButton.styleFrom(primary: Colors.red),
-                  onPressed: (){
-                    /*UserFirestore.deleteUser(myAccount.id);
-                    Authentication.deleteAuth();*/
-                    //ログイン画面に遷移
-                    while(Navigator.canPop(context)){//もしポップできる状況だったらポップする
-                      Navigator.pop(context);
-                    }
-                   /* //ポップできなくなったら、表示画面を破棄して画面遷移
-                    Navigator.pushReplacement(context, MaterialPageRoute(
-                        builder: (context) => LoginPage()));*/
-                  },
-                  child: const Text('アカウント削除')
-              )
             ],
           ),
         ),
