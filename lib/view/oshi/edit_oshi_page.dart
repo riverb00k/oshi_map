@@ -17,7 +17,9 @@ class EditOshiPage extends StatefulWidget {//stf
 
 class _EditOshiPageState extends State<EditOshiPage> {
 
-
+    /*myOshi = AccountPage.oshi[index];*/
+ /* Oshi oshi = snapshot.data![index];*/
+  //これに入ったコンストラクタをもらう
 
   /*//登録内容を表示したいので
    myOshi = Authentication.myOshi!;//今の自分のアカウント*/

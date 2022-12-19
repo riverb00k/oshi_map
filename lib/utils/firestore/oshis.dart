@@ -9,7 +9,7 @@ class OshiFirestore{
 
   //oshisコレクションの値をとってくることができる
   static final CollectionReference oshis = _firestoreInstance.collection('oshis');//oshisはいろんな人の投稿が入り混じっている
-
+  //oshisというコレクションの情報をとる
 
  /* //実際にユーザーをfirestoreのデータベースに保存追加するメソッド
   static Future<dynamic> addOshi(Oshi newOshi) async {
@@ -42,6 +42,10 @@ class OshiFirestore{
   }
 
 */
+
+  //いろんな人の推しが入り混じる、oshisというこれくしょんと
+  //自分だけの投稿をまとめているmy_oshisというコレクションを用意する。
+
   //実際にユーザーをfirestoreのデータベースに保存追加するメソッド
   static Future<dynamic> setOshi(Oshi newOshi) async {
     //引数にOshi型のnewOshiを送ってもらう。
@@ -49,17 +53,24 @@ class OshiFirestore{
       //try catchを使ってエラーハンドリングとアカウント作成する処理をかく
       final CollectionReference _userOshis = _firestoreInstance.collection('users')
           .doc(newOshi.postAccountId).collection('my_oshis');//my_oshisというコレクションは自分だけのを保存
-      var result = await oshis.add({
-        'postAccountId': newOshi.postAccountId,
+            //postAccountIdにあるmyoshisにアクセスできるようにする
+      /*FirebaseFirestore.instance.collection('コレクション名').doc('ドキュメントID').set(*/
+
+      var result = await oshis.doc(newOshi.id).set({
+        //はじめに、oshisに以下を追加
+        'postAccountId': newOshi.postAccountId,//誰の推しなのかを判別
         'oshiName': newOshi.oshiName,//user_idというフィールドに対してnewAccountのuserIdを保存する。
         'oshiImagePath': newOshi.oshiImagePath,
         'affiliation': newOshi.affiliation,
         'etc': newOshi.etc,
         'oshiCreated_time': Timestamp.now(),//firestoreではDateTime型は扱えない。使えるのはTimeStamp型。
         'oshiUpdated_time': Timestamp.now(),
+        'id': newOshi.id,
       });
-      _userOshis.doc(result.id).set({//resultのidを用いて自分のmy_oshisにも保存する
-        'oshiId': newOshi.oshiId,//nameというフィールドに対してnewAccountのnameを保存する。
+
+      //追加された。ドキュメントの情報がresultにはいっているのでそのドキュメントidを用いてmy_oshisにも以下を保存
+      _userOshis.doc(newOshi.id).set({//resultのidを用いて自分のmy_oshisにも保存する
+        'oshiName': newOshi.oshiName,
         'oshiCreatedTime': Timestamp.now(),
       });
       //上記の登録が上手くいっていたら、
@@ -85,7 +96,6 @@ class OshiFirestore{
         Map<String, dynamic> data = doc.data() as Map<String, dynamic>;//オブジェクト型のものをMap型に変える
         Oshi oshi = Oshi(//インスタンス
             oshiImagePath: data['oshiImagePath'],
-            oshiId: doc.id,
             oshiName: data['oshiName'],
             postAccountId: data['postAccountId'],
             affiliation: data['affiliation'],
