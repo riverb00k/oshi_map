@@ -101,23 +101,15 @@ class _OshiPageState extends State<OshiPage> {
                   width:300,//texifieldが画面幅いっぱいだと見にくいので
 
                   child: TextField(//名前を入力するための入力欄
-                    controller: oshiIdController,
-                    decoration: const InputDecoration(hintText: '推しのID'),
+                    controller: affiliationController,
+                    decoration: const InputDecoration(hintText: '推しの所属'),
                   ),
-                ),
-              ),
-
-              Container(//TetFieldに対してwrap with container
-                width:300,//texifieldが画面幅いっぱいだと見にくいので
-                child: TextField(//名前を入力するための入力欄
-                  controller: affiliationController,
-                  decoration: const InputDecoration(hintText: '推しの所属'),
                 ),
               ),
 
               Padding(//containerに対してwrap with padding
                 //メールアドレスの下に余白
-                padding: const EdgeInsets.symmetric(vertical: 20.0),
+                padding: const EdgeInsets.only(bottom: 20.0),
                 child: Container(//TetFieldに対してwrap with container
                   width:300,//texifieldが画面幅いっぱいだと見にくいので
                   child: TextField(//名前を入力するための入力欄
@@ -134,28 +126,23 @@ class _OshiPageState extends State<OshiPage> {
                     //awaitがある時はasyncを付ける
                     //もし、入力欄が全て埋められていたら、元のページに戻る
                     if(oshiNameController.text.isNotEmpty
-                        && oshiIdController.text.isNotEmpty
                         && affiliationController.text.isNotEmpty
                         && image != null){
 
                       //画像をfire strageにアップロードするというメソッドをつくる
                           String oshiImagePath = await FunctionUtils.uploadOshiImage(oshis.id ,image!); //String imagePath =追加
-
                           Oshi newOshi = Oshi(
                             postAccountId: Authentication.myAccount!.id,
                             oshiName: oshiNameController.text,
                             affiliation: affiliationController.text,
                             etc: etcController.text,
-                            oshiId: oshiIdController.text,
                             oshiImagePath: oshiImagePath,
+                            id: oshis.id,
                           );
                           var result = await OshiFirestore.setOshi(newOshi);
                           if(result == true){//登録できたら元の画面に戻る
                             Navigator.pop(context);
                           }
-
-
-
                         }
 
                         /*//Navigator.pop(context);にエラーがでるので、if (!mounted) return;　を追加

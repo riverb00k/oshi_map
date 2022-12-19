@@ -6,7 +6,7 @@ import 'dart:math' as math;
 
 class Oshi{
   //Oshiに必要な情報、このアプリにおけるテンプレートを作る
-  String? oshiId;//推しのid自動生成
+  String? id;//oshisのドキュメントid
   String oshiName;//推しの名前
   String oshiImagePath;//推しの画像
   String? postAccountId;//誰の推しかを管理するためのid(uid?)
@@ -19,7 +19,7 @@ class Oshi{
   //コンストラクタの定義→Accountが実際に作られるときに行われる処理
   Oshi({//コンストラクタ
     //必須なもの→required つける→null回避
-    this.oshiId,
+    this.id,
     required this.oshiName,
     required this.oshiImagePath,
     this.postAccountId,

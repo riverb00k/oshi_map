@@ -13,7 +13,9 @@ import 'package:oshi_map/view/oshi/oshi_page.dart';//電球の出し方→altと
 //アカウントアイコンを押したときのページ
 
 class AccountPage extends StatefulWidget {//stfで追加
+
   static Oshi? currentOshi;
+
   const AccountPage({Key? key}) : super(key: key);
 
   @override
@@ -86,7 +88,15 @@ class _AccountPageState extends State<AccountPage> {
               child: const Text('推し一覧',style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),),
             ),
 
-            Expanded(child: StreamBuilder<QuerySnapshot>(
+
+
+            Expanded(child: StreamBuilder<QuerySnapshot>(//Expanded は子要素を描画領域の最大サイズまで引き伸ばす、もしくは縮小させる Widget
+              //StreambuilderはStreamから流れてくるイベントを監視（リッスン）します
+              //新しいイベントが発生するたびに、再ビルドすることができ、常に最新の状態を表示することができます。
+              //StreamBuilderの使い方は簡単です。
+              //まずStreamBuilderにStreamを渡します。
+              //その後、builderを記載してください。
+              //snapshotからデータを取得できるので、そのデータをもとに画面に表示するwidgetを返します。
               stream: UserFirestore.users.doc(myAccount.id)
                   .collection('my_oshis').orderBy('oshiCreatedTime',descending: true)//新しい投稿が上にくるように
                   .snapshots(),
@@ -94,7 +104,7 @@ class _AccountPageState extends State<AccountPage> {
 
                 if(snapshot.hasData){//snapshotがデータを持っていたら
 
-                  //myOshisにはいっているドキュメントの数だけリストを作る
+                  //myOshIdsにはいっているドキュメントの数だけリストを作る
                   List<String> myOshiIds = List.generate(snapshot.data!.docs.length, (index){//dataはnullじゃないよ!
                     return snapshot.data!.docs[index].id;
                   });
