@@ -1,56 +1,56 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:oshi_map/model/oshi.dart';
+import 'package:oshi_map/utils/authentication.dart';
+import 'package:oshi_map/utils/firestore/oshis.dart';
 import 'package:oshi_map/utils/function_utils.dart';
 import 'package:oshi_map/utils/widget_utils.dart';
 import 'package:oshi_map/view/account/account_page.dart';
 
 class EditOshiPage extends StatefulWidget {//stf
+  final Oshi? oshi; //上位Widgetから受け取りたいデータ
+  const EditOshiPage({Key? key, required this.oshi}) : super(key: key);
 
- const EditOshiPage({Key? key}) : super(key: key);
-
-
-  @override
+ @override
   State<EditOshiPage> createState() => _EditOshiPageState();
 }
 
 class _EditOshiPageState extends State<EditOshiPage> {
 
-    /*myOshi = AccountPage.oshi[index];*/
- /* Oshi oshi = snapshot.data![index];*/
-  //これに入ったコンストラクタをもらう
-
-  /*//登録内容を表示したいので
-   myOshi = Authentication.myOshi!;//今の自分のアカウント*/
+ /* //登録内容を表示したいので
+   Oshi? myOshi = OshiFirestore.myOshi!;//今の自分のアカウント*/
 
   //追加ボタンをおしたときに入力されていることを送りたいので、それを管理するためのもの
   TextEditingController oshiNameController = TextEditingController();
-  TextEditingController oshiIdController = TextEditingController();
   TextEditingController affiliationController = TextEditingController();
   TextEditingController etcController = TextEditingController();
 
 //取得した画像を管理するための変数を用意する↓
   File? image;//dartioをimport
+  final oshis = FirebaseFirestore.instance.collection('oshis').doc();
 
-  /*ImageProvider getOshiImage(){
+  ImageProvider getOshiImage(){
     //imageがnullならnetworkimageを表示、
     //そうでなければfile image表示する。
     if(image == null) {
-      *//*return NetworkImage(*//**//*OshiImagePath*//**//*);*//*
+      return NetworkImage(widget.oshi!.oshiImagePath);
     }else{//画像が選択されている
       return FileImage(image!);
       //nullの可能性があるよとエラーがでるので！をつけてnullの可能性はないよと主張
       //  (imageがnullでないときの分岐なので)
     }
-  }*/
+  }
 
- /* @override
+ @override
   void initState() {//initStateのタイミングで各コントローラに初期値を入れていく
     super.initState();
-    nameController = TextEditingController(text:myAccount.name);
-    userIdController = TextEditingController(text:myAccount.userId);
-  }*/
+    oshiNameController = TextEditingController(text:widget.oshi!.oshiName);
+    affiliationController = TextEditingController(text:widget.oshi!.affiliation);
+    etcController = TextEditingController(text:widget.oshi!.etc);
+
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -79,7 +79,7 @@ class _EditOshiPageState extends State<EditOshiPage> {
                   }
                 },
                 child: CircleAvatar(
-                  /*foregroundImage: getImage(),*/
+                  foregroundImage: getOshiImage(),
                   radius: 40,
                   child: const Icon(Icons.add),//プラスのアイコンが表示される
                 ),
@@ -88,8 +88,8 @@ class _EditOshiPageState extends State<EditOshiPage> {
               Container(//TetFieldに対してwrap with container
                 width:300,//texifieldが画面幅いっぱいだと見にくいので
                 child: TextField(//名前を入力するための入力欄
-                 /* controller: nameController,*/
-                  decoration: const InputDecoration(hintText: '名前'),
+                  controller: oshiNameController,
+                  decoration: const InputDecoration(hintText: '推しの名前'),
                 ),
               ),
 
@@ -99,11 +99,24 @@ class _EditOshiPageState extends State<EditOshiPage> {
                 child: Container(//TetFieldに対してwrap with container
                   width:300,//texifieldが画面幅いっぱいだと見にくいので
                   child: TextField(//名前を入力するための入力欄
-                  /*  controller: userIdController,*/
-                    decoration: const InputDecoration(hintText: 'ユーザーID'),
+                    controller: affiliationController,
+                    decoration:  const InputDecoration(hintText: '推しの所属'),
                   ),
                 ),
               ),
+
+              Padding(//containerに対してwrap with padding
+                //ユーザーIDの上と下に余白
+                padding: const EdgeInsets.symmetric(vertical: 0.0),
+                child: Container(//TetFieldに対してwrap with container
+                  width:300,//texifieldが画面幅いっぱいだと見にくいので
+                  child: TextField(//名前を入力するための入力欄
+                    controller: etcController,
+                    decoration:  const InputDecoration(hintText: '備考'),
+                  ),
+                ),
+              ),
+
 
               const SizedBox(height: 50),
               //パスワード入力欄とアカウント作成ボタンの間に余白
@@ -112,27 +125,30 @@ class _EditOshiPageState extends State<EditOshiPage> {
                     //awaitがある時はasyncを付ける
 
                     //もし、入力欄が全て埋められていたら、元のページに戻る
-                    /*if(nameController.text.isNotEmpty
-                        && userIdController.text.isNotEmpty) {
-                      String imagePath = '';
+                    if(oshiNameController.text.isNotEmpty
+                        && affiliationController.text.isNotEmpty
+                        /*&& etcController.text.isNotEmpty*/) {
+                      String oshiImagePath = '';
                       if(image == null) { //新しい画像が選択されていない時
-                        imagePath = myAccount.imagePath;
+                        oshiImagePath = widget.oshi!.oshiImagePath;
                       }else{//新しい画像が登録されているとき
-                        var result = await FunctionUtils.uploadImage(myAccount.id, image!);
-                        imagePath = result;
+                        var result = await FunctionUtils.uploadOshiImage(widget.oshi!.id, image!);
+                        oshiImagePath = result;
                       }
-                      Account updateAccount = Account(
-                          id: myAccount.id,
-                          name: nameController.text,
-                          userId: userIdController.text,
-                          imagePath :imagePath
+                      Oshi updateOshi = Oshi(
+                          postAccountId: Authentication.myAccount!.id,
+                          oshiName: oshiNameController.text,
+                          affiliation: affiliationController.text,
+                          etc: etcController.text,
+                          oshiImagePath :oshiImagePath,
+                          id: widget.oshi!.id,
                       );
-                      Authentication.myAccount = updateAccount;
-                      var result = await UserFirestore.updateUser(updateAccount);
+                      OshiFirestore.myOshi = updateOshi;
+                      var result = await OshiFirestore.updateOshi(updateOshi);
                       if(result == true) { //更新ができている
                         Navigator.pop(context, true);
                       }
-                    }*/
+                    }
                   },
                   child: const Text('更新')
               ),

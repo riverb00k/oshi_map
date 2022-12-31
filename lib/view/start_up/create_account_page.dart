@@ -30,7 +30,6 @@ class CreateAccountPage extends StatefulWidget {//stf
 class _CreateAccountPageState extends State<CreateAccountPage> {
   //それぞれの入力欄に入力された文字をしゅとくできるようにコントローラーを追加
   TextEditingController nameController = TextEditingController();
-  TextEditingController userIdController = TextEditingController();
   TextEditingController passController = TextEditingController();
   TextEditingController emailController = TextEditingController();
 
@@ -89,22 +88,9 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                   decoration: const InputDecoration(hintText: '名前'),
                 ),
               ),
-
-              Padding(//containerに対してwrap with padding
-                //ユーザーIDの上と下に余白
-                padding: const EdgeInsets.symmetric(vertical: 20.0),
-                child: Container(//TetFieldに対してwrap with container
-                  width:300,//texifieldが画面幅いっぱいだと見にくいので
-                  child: TextField(//名前を入力するための入力欄
-                    controller: userIdController,
-                    decoration: const InputDecoration(hintText: 'ユーザーID'),
-                  ),
-                ),
-              ),
-
               Padding(//containerに対してwrap with padding
                 //メールアドレスの下に余白
-                padding: const EdgeInsets.only(bottom: 20.0),
+                padding: const EdgeInsets.symmetric(vertical: 20.0),
                 child: Container(//TetFieldに対してwrap with container
                   width:300,//texifieldが画面幅いっぱいだと見にくいので
                   child: TextField(//名前を入力するための入力欄
@@ -129,7 +115,6 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
 
                     //もし、入力欄が全て埋められていたら、元のページに戻る
                     if(nameController.text.isNotEmpty
-                        && userIdController.text.isNotEmpty
                         && emailController.text.isNotEmpty
                         && passController.text.isNotEmpty
                         && image != null){
@@ -150,7 +135,8 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                         //失敗している場合はbool型がreturnされるから
                         //(return falseなので)
 
-                        String imagePath = await FunctionUtils.uploadImage(result.user!.uid, image!); //String imagePath =追加
+                        String imagePath = await FunctionUtils.uploadImage(result.user!.uid, image!);
+                        //String imagePath =追加
                         //image!で、File型
                         //今作られたuserのuidで画像を保存することができる。
                         //userはnullじゃないよアピールの!をつけるとnull回避でエラー解決
@@ -159,7 +145,6 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                         Account newAccount = Account(
                           id: result.user!.uid,
                           name: nameController.text,
-                          userId: userIdController.text,
                           imagePath: imagePath,
                         );
 
@@ -174,6 +159,7 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                               pass: passController.text
                           )
                           ));//
+
                         }
 
                         /*//Navigator.pop(context);にエラーがでるので、if (!mounted) return;　を追加
