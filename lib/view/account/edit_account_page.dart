@@ -21,7 +21,6 @@ class _EditAccountPageState extends State<EditAccountPage> {
    Account myAccount = Authentication.myAccount!;//今の自分のアカウント
 
   TextEditingController nameController = TextEditingController();
-  TextEditingController userIdController = TextEditingController();
 
   //取得した画像を管理するための変数を用意する↓
   File? image;//dartioをimport
@@ -43,7 +42,6 @@ class _EditAccountPageState extends State<EditAccountPage> {
   void initState() {//initStateのタイミングで各コントローラに初期値を入れていく
     super.initState();
     nameController = TextEditingController(text:myAccount.name);
-    userIdController = TextEditingController(text:myAccount.userId);
   }
 
 
@@ -79,22 +77,14 @@ class _EditAccountPageState extends State<EditAccountPage> {
                 ),
               ),
 
-              Container(//TetFieldに対してwrap with container
-                width:300,//texifieldが画面幅いっぱいだと見にくいので
-                child: TextField(//名前を入力するための入力欄
-                  controller: nameController,
-                  decoration: const InputDecoration(hintText: '名前'),
-                ),
-              ),
-
               Padding(//containerに対してwrap with padding
                 //ユーザーIDの上と下に余白
                 padding: const EdgeInsets.symmetric(vertical: 20.0),
                 child: Container(//TetFieldに対してwrap with container
                   width:300,//texifieldが画面幅いっぱいだと見にくいので
                   child: TextField(//名前を入力するための入力欄
-                    controller: userIdController,
-                    decoration: const InputDecoration(hintText: 'ユーザーID'),
+                    controller: nameController,
+                    decoration: const InputDecoration(hintText: '名前'),
                   ),
                 ),
               ),
@@ -106,8 +96,7 @@ class _EditAccountPageState extends State<EditAccountPage> {
                     //awaitがある時はasyncを付ける
 
                     //もし、入力欄が全て埋められていたら、元のページに戻る
-                    if(nameController.text.isNotEmpty
-                        && userIdController.text.isNotEmpty) {
+                    if(nameController.text.isNotEmpty) {
                       String imagePath = '';
                       if(image == null) { //新しい画像が選択されていない時
                         imagePath = myAccount.imagePath;
@@ -118,7 +107,6 @@ class _EditAccountPageState extends State<EditAccountPage> {
                       Account updateAccount = Account(
                         id: myAccount.id,
                         name: nameController.text,
-                        userId: userIdController.text,
                         imagePath :imagePath
                       );
                       Authentication.myAccount = updateAccount;
@@ -152,6 +140,7 @@ class _EditAccountPageState extends State<EditAccountPage> {
                   onPressed: (){
                     UserFirestore.deleteUser(myAccount.id);
                     Authentication.deleteAuth();
+                    FunctionUtils.deleteUserPhotoData(myAccount.id);
                     //ログイン画面に遷移
                     while(Navigator.canPop(context)){//もしポップできる状況だったらポップする
                       Navigator.pop(context);

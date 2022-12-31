@@ -20,7 +20,7 @@ class FunctionUtils{
 
 
 
-  //画像をfire strageにアップロードするというメソッドをつくる
+  //ユーザー画像をfire strageにアップロードするというメソッドをつくる
   static Future<String> uploadImage(String uid,File image) async{
     //uidを使うので、送ってきて受けとるようにする。
     final FirebaseStorage storageInstance = FirebaseStorage.instance;
@@ -56,11 +56,11 @@ class FunctionUtils{
   }
 
   //推しの画像をfire strageにアップロードするというメソッドをつくる
-  static Future<String> uploadOshiImage(String oshiId,File image) async{
+  static Future<String> uploadOshiImage(String? oshiId,File image) async{
     //oshiIdを使うので、送ってきて受けとるようにする。
     final FirebaseStorage storageInstance = FirebaseStorage.instance;
     final Reference ref = storageInstance.ref();
-    await ref.child(oshiId).putFile(image);
+    await ref.child(oshiId!).putFile(image);
     //putFileでファイルをアップロードすることができる
     //画像はimageに格納していたのでimageをアップロードする。
     //imageがnullだとだめなので、!をつけてnull回避してエラーをとる
@@ -75,5 +75,15 @@ class FunctionUtils{
     //さいしゅうてきにdownloadUrl;をもどすので、
     //Future<void>をFuture<String>に変更する。
     return downloadUrl;
+  }
+
+  //ユーザー消去の際に画像を消去
+  static Future<void> deleteUserPhotoData(image) async{//TaskData data
+    /*final storageReference = FirebaseStorage.instance.refFromURL(imagePath.url);*//*
+    final storageReference = FirebaseStorage.instance.refFromURL(image);*/
+   /* await storageReference.delete();*/
+    final storageRef = FirebaseStorage.instance.ref();
+    final desertRef = storageRef.child(image);
+    await desertRef.delete();
   }
 }

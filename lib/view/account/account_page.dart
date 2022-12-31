@@ -8,7 +8,8 @@ import 'package:oshi_map/utils/firestore/oshis.dart';
 import 'package:oshi_map/utils/firestore/users.dart';
 import 'package:oshi_map/view/account/edit_account_page.dart';
 import 'package:oshi_map/view/oshi/edit_oshi_page.dart';
-import 'package:oshi_map/view/oshi/oshi_page.dart';//電球の出し方→altとエンター
+import 'package:oshi_map/view/oshi/oshi_page.dart';
+import 'package:oshi_map/view/oshi/simple_dialog_sample.dart';//電球の出し方→altとエンター
 
 //アカウントアイコンを押したときのページ
 
@@ -22,10 +23,15 @@ class AccountPage extends StatefulWidget {//stfで追加
   State<AccountPage> createState() => _AccountPageState();
 }
 
+
+
+
 class _AccountPageState extends State<AccountPage> {
 
   Account myAccount = Authentication.myAccount!;
   //myAccountがnullの可能性があるので、!をつける。
+
+
 
 
   @override
@@ -56,7 +62,7 @@ class _AccountPageState extends State<AccountPage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(myAccount.name,style: const TextStyle(fontSize: 25, fontWeight: FontWeight.bold),),
-                              Text('@${myAccount.userId}',style: const TextStyle(fontSize: 15,color: Colors.grey),),
+                              /*Text('@${myAccount.userId}',style: const TextStyle(fontSize: 15,color: Colors.grey),),*/
                             ],
                           ),
                         ],
@@ -117,7 +123,7 @@ class _AccountPageState extends State<AccountPage> {
                             .builder( //builderに対してwrap with streambuilder　ListViewに対してwrap with StreamBuilder
                             itemCount: snapshot.data!.length,
                             itemBuilder: (context, index) {
-                              Oshi oshi = snapshot.data![index];
+                              Oshi oshi = snapshot.data![index];//Oshiのインスタンス
                               return Container(
 
                                 decoration: BoxDecoration( //呟きと呟きの間に線
@@ -166,9 +172,13 @@ class _AccountPageState extends State<AccountPage> {
                                                     style: const TextStyle(
                                                         fontWeight: FontWeight
                                                             .bold),),
-                                                  Text('@${oshi.affiliation}',
+                                                  Text('  所属:${oshi.affiliation}',
                                                     style: const TextStyle(
                                                         color: Colors.grey),),
+                                                  Text('  備考:${oshi.etc}',
+                                                    style: const TextStyle(
+                                                         color: Colors.grey),),
+
 
                                                   Expanded(
                                                     child: Container(
@@ -182,6 +192,7 @@ class _AccountPageState extends State<AccountPage> {
                                                                   builder: (context){
                                                                     return SafeArea(
                                                                         child: Column(
+
                                                                           //大きさがでかいので、編集と削除二つ分くらいにする
                                                                           mainAxisSize: MainAxisSize.min,
                                                                           children: [
@@ -193,7 +204,8 @@ class _AccountPageState extends State<AccountPage> {
                                                                                 Navigator.pop(context);
                                                                                 Navigator.push(context, MaterialPageRoute(
                                                                                   //currentMemoに対して今選択されているメモ(fetchMemo)を送る
-                                                                                    builder: (context) => const EditOshiPage()));
+                                                                                    builder: (context) => EditOshiPage(oshi: oshi)));
+                                                                                /*oshi: myOshiIds[index]*/
                                                                               },
                                                                               //鉛筆アイコン
                                                                               leading:const Icon(Icons.edit),
@@ -202,8 +214,11 @@ class _AccountPageState extends State<AccountPage> {
                                                                             ListTile(
                                                                               //ゴミ箱アイコンを押したときの動き
                                                                                 onTap: ()async{
-                                                                                  /*await deleteMemo(fetchMemo.id);
-                                                                                  Navigator.pop(context);*/
+                                                                                  showDialog<void>(
+                                                                                      context: context,
+                                                                                      builder: (_) {
+                                                                                        return const SimpleDialogSample();
+                                                                                      });
                                                                                 }, //ゴミ箱アイコン
                                                                                 leading:const Icon(Icons.delete),
                                                                                 title:const Text('削除')

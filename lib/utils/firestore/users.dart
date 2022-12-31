@@ -21,7 +21,6 @@ class UserFirestore{
         //このidはauthenticationで発行されるuid。
         //画像と一緒で、authenticationのuidを元にネーミングをする。
         'name': newAccount.name,//nameというフィールドに対してnewAccountのnameを保存する。
-        'user_id': newAccount.userId,//user_idというフィールドに対してnewAccountのuserIdを保存する。
         'image_path' :newAccount.imagePath,
         'created_time': Timestamp.now(),//firestoreではDateTime型は扱えない。使えるのはTimeStamp型。
         'updated_time': Timestamp.now(),
@@ -54,7 +53,6 @@ class UserFirestore{
         //そのアカウントをつくっていく
           id: uid,//送られてきたuid
           name: data['name'],//firestoreのnameフィールドにはいっている情報
-          userId: data['user_id'],//firestoreのuser_idフィールドにはいっている情報
           imagePath: data['image_path'],
           createdTime: data['created_time'],
           updatedTime: data['updated_time']
@@ -76,7 +74,6 @@ class UserFirestore{
       await users.doc(updateAccount.id).update({
         'name':updateAccount.name,
         'image_path':updateAccount.imagePath,
-        'user_id':updateAccount.userId,
         'updated_time':Timestamp.now()
       });
       print('ユーザー情報の更新完了');

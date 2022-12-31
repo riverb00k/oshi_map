@@ -5,6 +5,8 @@ import 'package:oshi_map/model/oshi.dart';
 
 
 class OshiFirestore{
+  static Oshi? myOshi;
+
   static final _firestoreInstance = FirebaseFirestore.instance;
 
   //oshisコレクションの値をとってくることができる
@@ -99,7 +101,10 @@ class OshiFirestore{
             oshiName: data['oshiName'],
             postAccountId: data['postAccountId'],
             affiliation: data['affiliation'],
-            oshiCreatedTime: data['oshiCreatedTime']
+            oshiCreatedTime: data['oshiCreatedTime'],
+            oshiUpdatedTime: data['oshiUpdatedTime'],
+            etc: data['etc'],
+            id: data['id']
         );
         oshiList.add(oshi);//今出来上がったoshiをoshiListに追加
       });
@@ -108,6 +113,48 @@ class OshiFirestore{
     }on FirebaseException catch(e) {
       print('自分の推し取得エラー: $e');
       return null;
+    }
+  }
+
+  //推しのアカウント更新するメソッド
+  static Future<dynamic> updateOshi(Oshi updateOshi) async{
+
+    //引数にOshi型のnewOshiを送ってもらう。
+    try{
+      //try catchを使ってエラーハンドリングとアカウント作成する処理をかく
+      final CollectionReference _userOshis = _firestoreInstance.collection('users')
+          .doc(updateOshi.postAccountId).collection('my_oshis');//my_oshisというコレクションは自分だけのを保存
+      //postAccountIdにあるmyoshisにアクセスできるようにする
+      /*FirebaseFirestore.instance.collection('コレクション名').doc('ドキュメントID').set(*/
+
+      var result = await oshis.doc(updateOshi.id).update({
+        //はじめに、oshisに以下を追加
+        'oshiName': updateOshi.oshiName,//oshiNameというフィールドに対してupdateOshiのoshiNameを保存する。
+        'oshiImagePath': updateOshi.oshiImagePath,
+        'affiliation': updateOshi.affiliation,
+        'etc': updateOshi.etc,
+        //firestoreではDateTime型は扱えない。使えるのはTimeStamp型。
+        'oshiUpdated_time': Timestamp.now(),
+        'id': updateOshi.id,
+      });
+
+
+      //追加された。ドキュメントの情報がresultにはいっているのでそのドキュメントidを用いてmy_oshisにも以下を保存
+      _userOshis.doc(updateOshi.id).update({//resultのidを用いて自分のmy_oshisにも保存する
+        'oshiName': updateOshi.oshiName,
+        'oshiUpdatedTime': Timestamp.now(),
+      });
+      //上記の登録が上手くいっていたら、
+      print('テスト');
+      print(updateOshi.id);
+      print('推し更新完了');
+      return true;
+    } on FirebaseException catch (e) {
+      //うまくいっていない時
+      print('テスト');
+      print(updateOshi.id);
+      print('推し更新エラー: $e');//エラーー内容をeに入れて表示
+      return false;
     }
   }
 
