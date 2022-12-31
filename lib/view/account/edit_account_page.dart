@@ -7,6 +7,7 @@ import 'package:oshi_map/utils/authentication.dart';
 import 'package:oshi_map/utils/firestore/users.dart';
 import 'package:oshi_map/utils/function_utils.dart';
 import 'package:oshi_map/utils/widget_utils.dart';
+import 'package:oshi_map/view/account/simple_userdialog_sample.dart';
 import 'package:oshi_map/view/start_up/login_page.dart';
 
 class EditAccountPage extends StatefulWidget {//stf
@@ -138,16 +139,11 @@ class _EditAccountPageState extends State<EditAccountPage> {
               ElevatedButton(
                 style: ElevatedButton.styleFrom(primary: Colors.red),
                   onPressed: (){
-                    UserFirestore.deleteUser(myAccount.id);
-                    Authentication.deleteAuth();
-                    FunctionUtils.deleteUserPhotoData(myAccount.id);
-                    //ログイン画面に遷移
-                    while(Navigator.canPop(context)){//もしポップできる状況だったらポップする
-                      Navigator.pop(context);
-                    }
-                    //ポップできなくなったら、表示画面を破棄して画面遷移
-                    Navigator.pushReplacement(context, MaterialPageRoute(
-                        builder: (context) => LoginPage()));
+                    showDialog<void>(
+                        context: context,
+                        builder: (_) {
+                          return  SimpleUserdialogSample(myAccount: myAccount);
+                        });
                   },
                   child: const Text('アカウント削除')
               )

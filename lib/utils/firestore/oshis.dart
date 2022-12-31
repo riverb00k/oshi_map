@@ -159,7 +159,7 @@ class OshiFirestore{
   }
 
   //アカウント削除時に推しの情報を消す
-  static Future<dynamic> deleteOshis(String accountId) async{
+  static Future<dynamic> deleteOshis(String? accountId) async{
     final CollectionReference _userOshis = _firestoreInstance.collection('users')
         .doc(accountId).collection('my_oshis');
     var snapShot = await _userOshis.get();

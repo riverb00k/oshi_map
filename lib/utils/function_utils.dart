@@ -77,11 +77,33 @@ class FunctionUtils{
     return downloadUrl;
   }
 
-  //ユーザー消去の際に画像を消去
+  //ユーザー消去の際にユーザーの画像を消去
   static Future<void> deleteUserPhotoData(image) async{//TaskData data
     /*final storageReference = FirebaseStorage.instance.refFromURL(imagePath.url);*//*
     final storageReference = FirebaseStorage.instance.refFromURL(image);*/
    /* await storageReference.delete();*/
+    final storageRef = FirebaseStorage.instance.ref();
+    final desertRef = storageRef.child(image);
+    await desertRef.delete();
+  }
+
+
+  //ユーザー消去の際にひもづけられた推しを消去する。
+  static Future<void> deleteUserOshiPhotoData(image) async {
+    //TaskData data
+    /*final storageReference = FirebaseStorage.instance.refFromURL(imagePath.url);*/ /*
+    final storageReference = FirebaseStorage.instance.refFromURL(image);*/
+    /* await storageReference.delete();*/
+    final storageRef = FirebaseStorage.instance.ref();
+    final desertRef = storageRef.child(image);
+    await desertRef.delete();
+  }
+
+  //推しの消去の際に画像を消去
+  static Future<void> deleteOshiPhotoData(image) async{//TaskData data
+    /*final storageReference = FirebaseStorage.instance.refFromURL(imagePath.url);*//*
+    final storageReference = FirebaseStorage.instance.refFromURL(image);*/
+    /* await storageReference.delete();*/
     final storageRef = FirebaseStorage.instance.ref();
     final desertRef = storageRef.child(image);
     await desertRef.delete();

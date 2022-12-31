@@ -144,10 +144,6 @@ class _EditOshiPageState extends State<EditOshiPage> {
                           id: widget.oshi!.id,
                       );
                       OshiFirestore.myOshi = updateOshi;
-                      print('テスト２');
-                      print(widget.oshi!.id);
-                      print('テスト3');
-                      print(widget.oshi!.oshiImagePath);
                       var result = await OshiFirestore.updateOshi(updateOshi);
                       if(result == true) { //更新ができている
                         Navigator.pop(context, true);

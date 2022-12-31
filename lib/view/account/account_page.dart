@@ -216,10 +216,13 @@ class _AccountPageState extends State<AccountPage> {
                                                                                 onTap: ()async{
                                                                                   showDialog<void>(
                                                                                       context: context,
-                                                                                      builder: (_) {
-                                                                                        return const SimpleDialogSample();
-                                                                                      });
-                                                                                }, //ゴミ箱アイコン
+                                                                                      builder:(BuildContext context) => SimpleDialogSample(oshi:oshi));
+
+                                                                                      /*builder: (_) {
+                                                                                        return  const SimpleDialogSample(oshi: oshi);
+                                                                                        });*/
+
+                                                                                  },//ゴミ箱アイコン
                                                                                 leading:const Icon(Icons.delete),
                                                                                 title:const Text('削除')
                                                                             ),
