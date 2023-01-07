@@ -1,9 +1,12 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
 
 class FunctionUtils{
+
+  static final _firestoreInstance = FirebaseFirestore.instance;
 
   //画像を取得するメソッドを定義↓//staticつける
   static Future<dynamic> getImageFromGallery() async{
@@ -89,14 +92,16 @@ class FunctionUtils{
 
 
   //ユーザー消去の際にひもづけられた推しを消去する。
-  static Future<void> deleteUserOshiPhotoData(image) async {
-    //TaskData data
-    /*final storageReference = FirebaseStorage.instance.refFromURL(imagePath.url);*/ /*
-    final storageReference = FirebaseStorage.instance.refFromURL(image);*/
-    /* await storageReference.delete();*/
-    final storageRef = FirebaseStorage.instance.ref();
-    final desertRef = storageRef.child(image);
-    await desertRef.delete();
+  static Future<void> deleteUserOshiPhotoData(accountId) async {
+
+    final  CollectionReference _userOshiFhoto = _firestoreInstance.collection('users')
+      .doc(accountId).collection('my_oshis');
+    var snapShot = await _userOshiFhoto.get();
+    snapShot.docs.forEach((doc) async{//myoshisの中のidと一致するものを探してoshisの中から削除処理
+      final storageRef = FirebaseStorage.instance.ref();
+      final desertRef = storageRef.child(doc.id);
+      await desertRef.delete();
+    });
   }
 
   //推しの消去の際に画像を消去

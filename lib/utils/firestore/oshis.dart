@@ -168,5 +168,28 @@ class OshiFirestore{
       _userOshis.doc(doc.id).delete();//そのあと、usersの中のmyoshisも消去
     });
   }
+
+  //推し消去時に推しの情報を消す
+  static deleteOshi(String? oshiId) async{//oshisの消去
+    await _firestoreInstance.collection('oshis')
+        .doc(oshiId)
+        .delete();
+   /* await _firestoreInstance.collection('my_oshis')
+        .doc(oshiId)
+        .delete();*/
+
+  }
+
+  static Future<dynamic> deleteMyAccount(String accountId,String? oshiId) async{
+    final CollectionReference _userOshi = _firestoreInstance.collection('users')
+        .doc(accountId).collection('my_oshis');
+    var snapShot = await _userOshi.get();
+    snapShot.docs.forEach((doc) async{//myoshisの中のidと一致するものを探してoshisの中から削除処理
+      await /*oshis.doc(doc.id).delete();*/
+      _userOshi.doc(oshiId).delete();//そのあと、usersの中のmyoshisも消去
+    });
+  }
+
+
 }
 
