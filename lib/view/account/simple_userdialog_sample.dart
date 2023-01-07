@@ -15,6 +15,7 @@ class SimpleUserdialogSample extends StatefulWidget {//stf
 }
 
 class _SimpleUserdialogSampleState extends State<SimpleUserdialogSample> {
+
   @override
   Widget build(BuildContext context) {
     return SimpleDialog(

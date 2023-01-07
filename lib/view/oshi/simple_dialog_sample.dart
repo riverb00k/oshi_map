@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:oshi_map/model/account.dart';
 import 'package:oshi_map/model/oshi.dart';
+import 'package:oshi_map/utils/authentication.dart';
 import 'package:oshi_map/utils/firestore/oshis.dart';
 import 'package:oshi_map/view/account/account_page.dart';
 
@@ -14,6 +16,9 @@ class SimpleDialogSample extends StatefulWidget {//stf
 }
 
 class _SimpleDialogSampleState extends State<SimpleDialogSample> {
+
+  Account myAccount = Authentication.myAccount!;
+
   @override
   Widget build(BuildContext context) {
     return SimpleDialog(
@@ -24,8 +29,10 @@ class _SimpleDialogSampleState extends State<SimpleDialogSample> {
           onPressed: () {
             print('テスト11');
             print(widget.oshi!.id);
-            OshiFirestore.deleteOshis(widget.oshi!.id);
-            FunctionUtils.deleteOshiPhotoData(widget.oshi!.oshiImagePath);
+            print(widget.oshi!.oshiImagePath);
+            OshiFirestore.deleteOshi(widget.oshi!.id);//oshisの消去
+            OshiFirestore.deleteMyAccount(myAccount.id,widget.oshi!.id);//my_oshiの消去
+            FunctionUtils.deleteOshiPhotoData(widget.oshi!.id);//推しの画像消去
             //ログイン画面に遷移
             while (Navigator.canPop(context)) { //もしポップできる状況だったらポップする
               Navigator.pop(context);
