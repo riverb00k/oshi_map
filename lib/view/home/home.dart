@@ -12,7 +12,18 @@ class Home extends StatefulWidget {//stf
 
 class _HomeState extends State<Home> {
 
+  /*List<DropdownMenuItem<String>> _items = [];
+  String _selectItem = '';*/
+
   TextEditingController searchController = TextEditingController();
+
+  /*@override
+  void initState(){
+    super.initState();
+    setItems();
+    _selectItem = _items[0].value;
+  }*/
+
 
   @override
   Widget build(BuildContext context) {
