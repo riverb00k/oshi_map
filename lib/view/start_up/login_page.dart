@@ -1,6 +1,8 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:oshi_map/utils/authentication.dart';
+import 'package:oshi_map/utils/firestore/users.dart';
 import 'package:oshi_map/view/start_up/create_account_page.dart';
 
 
@@ -14,10 +16,12 @@ class LoginPage extends StatefulWidget {//stf
 }
 
 class _LoginPageState extends State<LoginPage> {
+
   //それぞれの入力欄に入力された文字をしゅとくできるようにコントローラーを追加
   TextEditingController emailController = TextEditingController();
   TextEditingController passController = TextEditingController();
 
+  String errorText = '';
 
   @override
   Widget build(BuildContext context) {
@@ -27,6 +31,7 @@ class _LoginPageState extends State<LoginPage> {
 
         child: Container(//columnに対してwrap with container
           width: double.infinity,//アプリ名が真ん中に配置される
+
           child: Column(//e-mailやパスワードなどの入力欄を縦に並べてたいので
 
             children: [
@@ -78,8 +83,14 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
 
-              const SizedBox(height:  70),
+              SizedBox(height:  5),
+
+              Text(errorText,style: const TextStyle(fontSize: 15,color: Colors.red,),),
+
+              SizedBox(height:  70),
               //アカウントを作成していない方はこちら　と　ログインボタンの間にスペース
+
+
               ElevatedButton(onPressed: () async{
 
                  //await使う場合はasyncが必要
@@ -88,20 +99,31 @@ class _LoginPageState extends State<LoginPage> {
                     email: emailController.text, pass: passController.text
                   );
 
-                   if(result == true) { //アカウントのログインができている場合
-                     //次の画面にいく。
-                     Navigator.pushReplacement(context, MaterialPageRoute(
-                         builder: (context) => const Screen()));
-                     //ログインをおすとscreen_page.dartに遷移
-                     //ログインページを破棄して遷移したいので、pushReplacementをつかう→元のページ(ログインページにはもどれない)
-                   }
-                   },
-
+                    if(result is UserCredential) {  //アカウントのログインができている場合
+                      if(result.user!.emailVerified == true){//ユーザー認証されている
+                        var _result = await UserFirestore.getUser(result.user!.uid);
+                        if (_result == true) {
+                          //次の画面にいく。
+                          Navigator.pushReplacement(context, MaterialPageRoute(
+                              builder: (context) => const Screen()));
+                          //ログインページを破棄して遷移したいので、pushReplacementをつかう→元のページ(ログインページにはもどれない)
+                        }
+                      }else{
+                        print('メール認証ができていません。');
+                      }
+                    }
+                  if(result == false) {
+                    errorText = 'サインインエラーが発生しました';
+                    print(errorText);
+                    setState(() {});
+                  }
+                    },
                   child: const Text('ログイン'))
 
             ],
           ),
         ),
+
       ),
     );
   }
