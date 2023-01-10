@@ -16,10 +16,12 @@ class LoginPage extends StatefulWidget {//stf
 }
 
 class _LoginPageState extends State<LoginPage> {
+
   //それぞれの入力欄に入力された文字をしゅとくできるようにコントローラーを追加
   TextEditingController emailController = TextEditingController();
   TextEditingController passController = TextEditingController();
 
+  String errorText = '';
 
   @override
   Widget build(BuildContext context) {
@@ -81,11 +83,14 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
 
+              SizedBox(height:  5),
 
-
+              Text(errorText,style: const TextStyle(fontSize: 15,color: Colors.red,),),
 
               SizedBox(height:  70),
               //アカウントを作成していない方はこちら　と　ログインボタンの間にスペース
+
+
               ElevatedButton(onPressed: () async{
 
                  //await使う場合はasyncが必要
@@ -94,27 +99,26 @@ class _LoginPageState extends State<LoginPage> {
                     email: emailController.text, pass: passController.text
                   );
 
-                    if(result is UserCredential) { //アカウントのログインができている場合
-                       var _result = await UserFirestore.getUser(result.user!.uid);
-                       if (_result == true) {
-                         //次の画面にいく。
-                         Navigator.pushReplacement(context, MaterialPageRoute(
-                            builder: (context) => const Screen()));
-                      //ログインページを破棄して遷移したいので、pushReplacementをつかう→元のページ(ログインページにはもどれない)
+                    if(result is UserCredential) {  //アカウントのログインができている場合
+                      if(result.user!.emailVerified == true){//ユーザー認証されている
+                        var _result = await UserFirestore.getUser(result.user!.uid);
+                        if (_result == true) {
+                          //次の画面にいく。
+                          Navigator.pushReplacement(context, MaterialPageRoute(
+                              builder: (context) => const Screen()));
+                          //ログインページを破棄して遷移したいので、pushReplacementをつかう→元のページ(ログインページにはもどれない)
+                        }
+                      }else{
+                        print('メール認証ができていません。');
                       }
-
-                      if(result == false) {
-                        print('sainn');
-                        const Text('サインインエラー',style: TextStyle(fontSize: 15,color: Colors.red,),);
-                       }
                     }
-
-                  },
-
-
-
-
-                 child: const Text('ログイン'))
+                  if(result == false) {
+                    errorText = 'サインインエラーが発生しました';
+                    print(errorText);
+                    setState(() {});
+                  }
+                    },
+                  child: const Text('ログイン'))
 
             ],
           ),

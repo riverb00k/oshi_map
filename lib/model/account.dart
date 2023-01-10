@@ -5,7 +5,6 @@ class Account{
   String id;//ユーザーのアカウントid firestore
   String name;//名前
   String imagePath;//プロフィール画像
-  String userId;//ユーザーに対して見えるid
   Timestamp? createdTime;//ユーザー作成時時刻
   //?がつくとnullが許容される
   Timestamp? updatedTime;//ユーザー更新時時刻
@@ -16,7 +15,6 @@ class Account{
     required this.id,
     required this.name,
     required this.imagePath,
-    required this.userId,
     this.createdTime,
     this.updatedTime,
   });

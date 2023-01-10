@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:oshi_map/model/account.dart';
 import 'package:oshi_map/utils/authentication.dart';
+import 'package:oshi_map/utils/firestore/oshis.dart';
 
 
 class UserFirestore{
@@ -20,7 +21,6 @@ class UserFirestore{
         //このidはauthenticationで発行されるuid。
         //画像と一緒で、authenticationのuidを元にネーミングをする。
         'name': newAccount.name,//nameというフィールドに対してnewAccountのnameを保存する。
-        'user_id': newAccount.userId,//user_idというフィールドに対してnewAccountのuserIdを保存する。
         'image_path' :newAccount.imagePath,
         'created_time': Timestamp.now(),//firestoreではDateTime型は扱えない。使えるのはTimeStamp型。
         'updated_time': Timestamp.now(),
@@ -53,7 +53,6 @@ class UserFirestore{
         //そのアカウントをつくっていく
           id: uid,//送られてきたuid
           name: data['name'],//firestoreのnameフィールドにはいっている情報
-          userId: data['user_id'],//firestoreのuser_idフィールドにはいっている情報
           imagePath: data['image_path'],
           createdTime: data['created_time'],
           updatedTime: data['updated_time']
@@ -67,5 +66,27 @@ class UserFirestore{
       print('ユーザー取得エラー: $e');
       return false;
     }
+  }
+
+  //ユーザーを更新するメソッド
+ static Future<dynamic> updateUser(Account updateAccount) async{
+    try{
+      await users.doc(updateAccount.id).update({
+        'name':updateAccount.name,
+        'image_path':updateAccount.imagePath,
+        'updated_time':Timestamp.now()
+      });
+      print('ユーザー情報の更新完了');
+      return true;
+    }on FirebaseException catch(e){
+      print('ユーザー情報の更新エラー: $e');
+      return false;
+    }
+ }
+
+ //アカウント削除時にユーザー削除の処理
+  static Future<dynamic> deleteUser(String accountId) async{//どのアカウントを消去するかの判断を引数でもってくる
+    users.doc(accountId).delete();
+    OshiFirestore.deleteOshis(accountId);
   }
 }

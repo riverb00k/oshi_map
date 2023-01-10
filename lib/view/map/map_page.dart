@@ -1,53 +1,32 @@
 import 'dart:io';
 
-/*import 'package:firebase_storage/firebase_storage.dart';*/
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-/*import 'package:image_picker/image_picker.dart';*/
-import 'package:oshi_map/model/oshi.dart';
-/*import 'package:oshi_map/model/oshi.dart';
-import 'package:oshi_map/model/oshi.dart';*/
-import 'package:oshi_map/utils/authentication.dart';
-import 'package:oshi_map/utils/firestore/oshis.dart';
 import 'package:oshi_map/utils/function_utils.dart';
 import 'package:oshi_map/utils/widget_utils.dart';
 
-/*import '../../model/oshi.dart';*/
-
-class OshiPage extends StatefulWidget {//stf
- /* const OshiPage({Key? key}) : super(key: key);*/
-
-  //curentOshi(現在のメモ)に値が入っていなければ新規メモ、はいっていたら編集
-  final Oshi? currentOshi;//nullでもいいのでOshi?型にする
-  const OshiPage({Key? key,this.currentOshi}) : super(key: key);
+class MapPage extends StatefulWidget {//stf
+  const MapPage({Key? key}) : super(key: key);
 
   @override
-  State<OshiPage> createState() => _OshiPageState();
+  State<MapPage> createState() => _MapPageState();
 }
 
-class _OshiPageState extends State<OshiPage> {
+class _MapPageState extends State<MapPage> {
 
   //追加ボタンをおしたときに入力されていることを送りたいので、それを管理するためのもの
-  TextEditingController oshiNameController = TextEditingController();
-  TextEditingController oshiIdController = TextEditingController();
-  TextEditingController affiliationController = TextEditingController();
-  TextEditingController etcController = TextEditingController();
+  TextEditingController addressController = TextEditingController();
+  TextEditingController mapEtcController = TextEditingController();
 
-  //取得した画像を管理するための変数を用意する↓
+ //取得した画像を管理するための変数を用意する↓
   File? image;
 
-  final oshis = FirebaseFirestore.instance.collection('oshis').doc();
-  /*FirebaseFirestore.instance.collection('コレクション名').doc('ドキュメントID').set(
-  {
-  'name': yuto,
-  'job': engineers,
-  },
-  );*/
+  final maps = FirebaseFirestore.instance.collection('maps').doc();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: WidgetUtils.createAppBar('推し登録'),
+      appBar: WidgetUtils.createAppBar('マップ登録'),
 
       body: SingleChildScrollView(//containe(body)に対してwrap with widget→SingleChildScrollView
         //キーボードを出したときに「したのほうを表示できないよ」のエラーをなくすため
@@ -89,8 +68,8 @@ class _OshiPageState extends State<OshiPage> {
               Container(//TetFieldに対してwrap with container
                 width:300,//texifieldが画面幅いっぱいだと見にくいので
                 child: TextField(//名前を入力するための入力欄
-                  controller: oshiNameController,
-                  decoration: const InputDecoration(hintText: '推しの名前'),
+                  controller: addressController,
+                  decoration: const InputDecoration(hintText: '住所'),
                 ),
               ),
 
@@ -101,8 +80,8 @@ class _OshiPageState extends State<OshiPage> {
                   width:300,//texifieldが画面幅いっぱいだと見にくいので
 
                   child: TextField(//名前を入力するための入力欄
-                    controller: affiliationController,
-                    decoration: const InputDecoration(hintText: '推しの所属'),
+                    controller: mapEtcController,
+                    decoration: const InputDecoration(hintText: '備考'),
                   ),
                 ),
               ),
@@ -113,7 +92,7 @@ class _OshiPageState extends State<OshiPage> {
                 child: Container(//TetFieldに対してwrap with container
                   width:300,//texifieldが画面幅いっぱいだと見にくいので
                   child: TextField(//名前を入力するための入力欄
-                    controller: etcController,
+                    controller: mapEtcController,
                     decoration: const InputDecoration(hintText: '備考'),
                   ),
                 ),
@@ -125,27 +104,27 @@ class _OshiPageState extends State<OshiPage> {
                   onPressed: () async{//アカウント作成ボタン
                     //awaitがある時はasyncを付ける
                     //もし、入力欄が全て埋められていたら、元のページに戻る
-                    if(oshiNameController.text.isNotEmpty
-                        && affiliationController.text.isNotEmpty
+                    if(addressController.text.isNotEmpty
+                        && mapEtcController.text.isNotEmpty
                         && image != null){
 
                       //画像をfire strageにアップロードするというメソッドをつくる
-                          String oshiImagePath = await FunctionUtils.uploadOshiImage(oshis.id ,image!); //String imagePath =追加
-                          Oshi newOshi = Oshi(
-                            postAccountId: Authentication.myAccount!.id,
-                            oshiName: oshiNameController.text,
-                            affiliation: affiliationController.text,
-                            etc: etcController.text,
-                            oshiImagePath: oshiImagePath,
-                            id: oshis.id,
-                          );
-                          var result = await OshiFirestore.setOshi(newOshi);
-                          if(result == true){//登録できたら元の画面に戻る
-                            Navigator.pop(context);
-                          }
-                        }
+                      /*String oshiImagePath = await FunctionUtils.uploadOshiImage(oshis.id ,image!); //String imagePath =追加
+                      Oshi newOshi = Oshi(
+                        postAccountId: Authentication.myAccount!.id,
+                        oshiName: oshiNameController.text,
+                        affiliation: affiliationController.text,
+                        etc: etcController.text,
+                        oshiImagePath: oshiImagePath,
+                        id: oshis.id,
+                      );
+                      var result = await OshiFirestore.setOshi(newOshi);
+                      if(result == true){//登録できたら元の画面に戻る
+                        Navigator.pop(context);
+                      }*/
+                    }
 
-                        /*//Navigator.pop(context);にエラーがでるので、if (!mounted) return;　を追加
+                    /*//Navigator.pop(context);にエラーがでるので、if (!mounted) return;　を追加
                         //非同期処理中に、「Navigator」のように、contextを渡す処理があると、非同期処理から戻ってきたときに、既に画面遷移が終わっていて、元の画面のcontextが無くなっているのでエラーになる、という状況を防ぎましょう
                         //要は、contextが無くなっていたら、早期リターンしてNavigatorを実行させないようにする、ということ
                         // contextを渡す前に、contextが現在のWidgetツリー内に存在しているかどうかチェック
@@ -153,8 +132,8 @@ class _OshiPageState extends State<OshiPage> {
                         if (!mounted) return;
 
                         Navigator.pop(context);*/
-                      },
-                  child: const Text('推し作成')
+                  },
+                  child: const Text('マップ作成')
               )
 
 
